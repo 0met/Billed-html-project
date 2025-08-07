@@ -7,75 +7,208 @@
     <title>Billed HTML Project</title>
     <style>
         :root {
-            --bg-color: #ffffff;
-            --text-color: #000000;
+            --bg-color: #f8f9fa;
+            --text-color: #222;
+            --primary: #4f46e5;
+            --secondary: #f1f5f9;
+            --card-bg: #fff;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         [data-theme="dark"] {
-            --bg-color: #333333;
-            --text-color: #ffffff;
+            --bg-color: #18181b;
+            --text-color: #f3f4f6;
+            --card-bg: #232326;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         body {
+            font-family: 'Inter', 'Roboto', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--card-bg);
+            box-shadow: var(--card-shadow);
+            border-radius: 18px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin: 0;
+            font-weight: 700;
+        }
+        nav {
+            margin-bottom: 2rem;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-menu li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .nav-menu li:hover {
+            background: var(--secondary);
+        }
+        [data-theme="dark"] .nav-menu li:hover {
+            background: #262637;
+        }
+        main h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+        .invoice-list {
+            display: flex;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        .invoice-card {
+            background: var(--secondary);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 1rem 1.5rem;
+            min-width: 150px;
+            text-align: center;
+            font-weight: 500;
+            position: relative;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            color: #fff;
+        }
+        .status.draft { background: #a3a3a3; }
+        .status.paid { background: #22c55e; }
+        .status.overdue { background: #ef4444; }
+        .invoice-form {
+            margin: 2rem 0;
+        }
+        select, button {
+            font-family: inherit;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 1rem;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s, background 0.2s;
         }
         button {
-            transition: background-color 0.3s;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
         }
-        button:hover {
-            background-color: #f0f0f0;
+        button:hover, button:focus {
+            background: #3730a3;
         }
-        /* Add more styles as needed */
+        [data-theme="dark"] button {
+            background: #6366f1;
+        }
+        [data-theme="dark"] button:hover, [data-theme="dark"] button:focus {
+            background: #3730a3;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            .invoice-list {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <button id="dark-mode-toggle">Toggle Dark Mode</button>
-    </header>
-    <nav>
-        <ul class="nav-menu">
-            <li><img src="path/to/icon.svg" alt="Icon 1"></li>
-            <li><img src="path/to/icon.svg" alt="Icon 2"></li>
-            <!-- Add more SVG icons as needed -->
-        </ul>
-    </nav>
-    <main>
-        <div class="invoice-preview">
-            <!-- Invoice preview content -->
-        </div>
-        <div class="invoice-list">
-            <div class="invoice-status">Draft</div>
-            <div class="invoice-status">Paid</div>
-            <div class="invoice-status">Overdue</div>
-            <!-- Add more invoices as needed -->
-        </div>
-        <div class="invoice-form">
-            <select id="client-dropdown">
-                <option value="client1">Client 1</option>
-                <option value="client2">Client 2</option>
-                <!-- Add more clients as needed -->
-            </select>
-        </div>
-        <button id="download-pdf">Download PDF</button>
-    </main>
+    <div class="container">
+        <header>
+            <h1>Invoice Project</h1>
+            <button id="dark-mode-toggle">🌙 Toggle Dark Mode</button>
+        </header>
+        <nav>
+            <ul class="nav-menu">
+                <li>
+                    <svg width="20" height="20" fill="none" stroke="currentColor"><circle cx="10" cy="10" r="8" stroke-width="2"/></svg>
+                    <span>Dashboard</span>
+                </li>
+                <li>
+                    <svg width="20" height="20" fill="none" stroke="currentColor"><rect x="4" y="4" width="12" height="12" stroke-width="2"/></svg>
+                    <span>Invoices</span>
+                </li>
+                <li>
+                    <svg width="20" height="20" fill="none" stroke="currentColor"><polygon points="10,3 17,17 3,17" stroke-width="2"/></svg>
+                    <span>Clients</span>
+                </li>
+            </ul>
+        </nav>
+        <main>
+            <section class="invoice-preview">
+                <h2>Invoice Preview</h2>
+                <!-- Add invoice preview details here -->
+                <p>Preview invoice details and actions.</p>
+            </section>
+            <section class="invoice-list">
+                <div class="invoice-card">
+                    <div>Invoice #001</div>
+                    <div class="status draft">Draft</div>
+                </div>
+                <div class="invoice-card">
+                    <div>Invoice #002</div>
+                    <div class="status paid">Paid</div>
+                </div>
+                <div class="invoice-card">
+                    <div>Invoice #003</div>
+                    <div class="status overdue">Overdue</div>
+                </div>
+                <!-- Add more invoice cards as needed -->
+            </section>
+            <section class="invoice-form">
+                <label for="client-dropdown">Select Client:</label>
+                <select id="client-dropdown">
+                    <option value="client1">Client 1</option>
+                    <option value="client2">Client 2</option>
+                </select>
+                <button id="download-pdf">Download PDF</button>
+            </section>
+        </main>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
     <script>
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
-
         darkModeToggle.addEventListener('click', () => {
             body.dataset.theme = body.dataset.theme === 'dark' ? '' : 'dark';
         });
-
         document.getElementById('download-pdf').addEventListener('click', () => {
-            // jsPDF export logic
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.text('Invoice', 10, 10);
             doc.save('invoice.pdf');
         });
-
-        // Live update logic for invoice preview
-        // Add event listeners on form fields to update preview
+        // Add live update logic for invoice preview if needed
     </script>
 </body>
 </html>
