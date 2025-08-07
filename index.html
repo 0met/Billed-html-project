@@ -106,7 +106,7 @@
         .invoice-form {
             margin: 2rem 0;
         }
-        select, button {
+        select, button, input {
             font-family: inherit;
             font-size: 1rem;
             border-radius: 8px;
@@ -132,12 +132,52 @@
         [data-theme="dark"] button:hover, [data-theme="dark"] button:focus {
             background: #3730a3;
         }
+        .line-items {
+            margin-top: 1rem;
+        }
+        .line-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+        .line-item input[type="text"] {
+            flex: 2;
+        }
+        .line-item input[type="number"] {
+            width: 80px;
+        }
+        .line-item .amount {
+            min-width: 80px;
+            text-align: right;
+            font-weight: bold;
+        }
+        .line-item button {
+            padding: 0.2rem 0.6rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            margin-right: 0;
+        }
+        #add-line-item {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        .preview-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--secondary);
+            border-radius: 10px;
+        }
         @media (max-width: 600px) {
             .container {
                 padding: 1rem;
             }
             .invoice-list {
                 flex-direction: column;
+            }
+            .line-item {
+                flex-direction: column;
+                align-items: stretch;
             }
         }
     </style>
@@ -165,33 +205,27 @@
             </ul>
         </nav>
         <main>
-            <section class="invoice-preview">
-                <h2>Invoice Preview</h2>
-                <!-- Add invoice preview details here -->
-                <p>Preview invoice details and actions.</p>
-            </section>
-            <section class="invoice-list">
-                <div class="invoice-card">
-                    <div>Invoice #001</div>
-                    <div class="status draft">Draft</div>
-                </div>
-                <div class="invoice-card">
-                    <div>Invoice #002</div>
-                    <div class="status paid">Paid</div>
-                </div>
-                <div class="invoice-card">
-                    <div>Invoice #003</div>
-                    <div class="status overdue">Overdue</div>
-                </div>
-                <!-- Add more invoice cards as needed -->
-            </section>
+
             <section class="invoice-form">
-                <label for="client-dropdown">Select Client:</label>
-                <select id="client-dropdown">
-                    <option value="client1">Client 1</option>
-                    <option value="client2">Client 2</option>
-                </select>
+                <h2>Create Invoice</h2>
+                <label for="company-name">Your Company Name:</label>
+                <input type="text" id="company-name" placeholder="Your Company Inc." />
+                <label for="client-name">Client Name:</label>
+                <input type="text" id="client-name" placeholder="Client Name" />
+                <div class="line-items" id="line-items">
+                    <h3>Invoice Line Items</h3>
+                    <div id="items-container">
+                    <!-- Line items will be rendered here -->
+                    </div>
+                    <button id="add-line-item" type="button">+ Add Line Item</button>
+                </div>
                 <button id="download-pdf">Download PDF</button>
+            </section>
+            <section class="preview-section">
+                <h2>Live Invoice Preview</h2>
+                <div id="invoice-preview">
+                    <!-- Live preview will be rendered here -->
+                </div>
             </section>
         </main>
     </div>
@@ -202,13 +236,94 @@
         darkModeToggle.addEventListener('click', () => {
             body.dataset.theme = body.dataset.theme === 'dark' ? '' : 'dark';
         });
+
+        // Invoice line items logic
+        let items = [
+            {desc: '', qty: 1, rate: 0}
+        ];
+
+        function renderItems() {
+            const container = document.getElementById('items-container');
+            container.innerHTML = '';
+            items.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'line-item';
+                div.innerHTML = `
+                    <input type="text" placeholder="Description" value="${item.desc}" data-idx="${idx}" class="desc" />
+                    <input type="number" min="1" value="${item.qty}" data-idx="${idx}" class="qty" />
+                    <input type="number" min="0" step="0.01" value="${item.rate}" data-idx="${idx}" class="rate" />
+                    <span class="amount">$${(item.qty * item.rate).toFixed(2)}</span>
+                    <button type="button" class="remove" data-idx="${idx}">🗑️</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        function addItem() {
+            items.push({desc: '', qty: 1, rate: 0});
+            renderItems();
+            renderPreview();
+        }
+        function removeItem(idx) {
+            items.splice(idx, 1);
+            renderItems();
+            renderPreview();
+        }
+        document.getElementById('add-line-item').addEventListener('click', addItem);
+        document.getElementById('items-container').addEventListener('input', function(e){
+            const idx = +e.target.dataset.idx;
+            if (e.target.classList.contains('desc')) items[idx].desc = e.target.value;
+            if (e.target.classList.contains('qty')) items[idx].qty = Math.max(1, +e.target.value);
+            if (e.target.classList.contains('rate')) items[idx].rate = Math.max(0, +e.target.value);
+            renderItems();
+            renderPreview();
+        });
+        document.getElementById('items-container').addEventListener('click', function(e){
+            if (e.target.classList.contains('remove')) {
+                removeItem(+e.target.dataset.idx);
+            }
+        });
+        // Live preview
+        function renderPreview(){
+            const company = document.getElementById('company-name').value || 'Your Company';
+            const client = document.getElementById('client-name').value || 'Client Name';
+            let html = `<b>${company}</b> → <b>${client}</b><br><br>`;
+            html += `<table style="width:100%;"><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>`;
+            let total = 0;
+            items.forEach(item => {
+                const amount = item.qty * item.rate;
+                html += `<tr><td>${item.desc}</td><td>${item.qty}</td><td>$${item.rate.toFixed(2)}</td><td>$${amount.toFixed(2)}</td></tr>`;
+                total += amount;
+            });
+            html += `</table>`;
+            html += `<div style="margin-top:1em;text-align:right;font-weight:bold;">Total: $${total.toFixed(2)}</div>`;
+            document.getElementById('invoice-preview').innerHTML = html;
+        }
+        document.getElementById('company-name').addEventListener('input', renderPreview);
+        document.getElementById('client-name').addEventListener('input', renderPreview);
+        // Initial render
+        renderItems();
+        renderPreview();
+
+        // PDF export
         document.getElementById('download-pdf').addEventListener('click', () => {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.text('Invoice', 10, 10);
+            let y = 20;
+            doc.text('Company: ' + (document.getElementById('company-name').value || 'Your Company'), 10, y);
+            y+=10;
+            doc.text('Client: ' + (document.getElementById('client-name').value || 'Client Name'), 10, y);
+            y+=10;
+            doc.text('Items:', 10, y);
+            y+=10;
+            items.forEach(item => {
+                doc.text(`${item.desc} | Qty: ${item.qty} | Rate: $${item.rate.toFixed(2)} | Amount: $${(item.qty*item.rate).toFixed(2)}`, 10, y);
+                y+=10;
+            });
+            const total = items.reduce((sum, it)=>sum+it.qty*it.rate,0);
+            doc.text('Total: $'+total.toFixed(2), 10, y);
             doc.save('invoice.pdf');
         });
-        // Add live update logic for invoice preview if needed
     </script>
 </body>
 </html>
