@@ -475,6 +475,12 @@
          .load-invoice-btn {
              color: var(--primary) !important;
          }
+         .import-btn {
+             color: var(--primary-color) !important;
+         }
+         .edit-btn {
+             color: var(--primary) !important;
+         }
          .delete-invoice-btn {
              color: var(--error-color) !important;
          }
@@ -677,13 +683,19 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="client-name">Customer Name</label>
-                    <div class="input-with-button">
-                        <input type="text" id="client-name" list="clients-list" placeholder="John Doe">
-                        <button id="save-client-btn" class="transparent-btn">
-                            <i class="fas fa-save"></i> Save Client
-                        </button>
-                    </div>
+                    <label for="customer-first-name">First Name</label>
+                    <input type="text" id="customer-first-name" placeholder="John">
+                </div>
+                <div class="form-group">
+                    <label for="customer-last-name">Last Name</label>
+                    <input type="text" id="customer-last-name" placeholder="Doe">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="customer-company">Company Name</label>
+                    <input type="text" id="customer-company" list="clients-list" placeholder="Company Inc.">
                     <datalist id="clients-list"></datalist>
                 </div>
             </div>
@@ -696,6 +708,14 @@
                 <div class="form-group">
                     <label for="customer-phone">Customer Phone</label>
                     <input type="tel" id="customer-phone" placeholder="+1 (555) 987-6543">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <button id="save-client-btn" class="transparent-btn">
+                        <i class="fas fa-save"></i> Save Client
+                    </button>
                 </div>
             </div>
 
@@ -861,7 +881,9 @@
         const container = document.getElementById('items-container');
         const preview = document.getElementById('invoice-preview');
         const companyNameInput = document.getElementById('company-name');
-        const clientNameInput = document.getElementById('client-name');
+        const customerFirstNameInput = document.getElementById('customer-first-name');
+        const customerLastNameInput = document.getElementById('customer-last-name');
+        const customerCompanyInput = document.getElementById('customer-company');
         const invoiceDateInput = document.getElementById('invoice-date');
         const dueDateInput = document.getElementById('due-date');
         const invoiceNumberInput = document.getElementById('invoice-number');
@@ -939,10 +961,13 @@
 
             savedClientsList.innerHTML = invoiceData.clients.map(client => `
                 <li>
-                    <span>${client}</span>
+                    <span class="client-name" data-client="${client}">${client}</span>
                     <div class="action-buttons">
                         <button class="import-btn" data-client="${client}" title="Import to Customer Name">
                             <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button class="edit-btn" data-client="${client}" title="Edit Client">
+                            <i class="fas fa-edit"></i>
                         </button>
                         <button class="delete-btn" data-client="${client}">
                             <i class="fas fa-trash"></i>
@@ -955,10 +980,13 @@
         function renderItemsList() {
             savedItemsList.innerHTML = invoiceData.items.map(item => `
                 <li>
-                    <span>${item.description} (${getCurrencySymbol()}${item.rate.toFixed(2)})</span>
+                    <span class="item-name" data-item="${item.description}">${item.description} (${getCurrencySymbol()}${item.rate.toFixed(2)})</span>
                     <div class="action-buttons">
                         <button class="import-btn" data-item="${item.description}" data-rate="${item.rate}" title="Add to Invoice">
                             <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="edit-btn" data-item="${item.description}" title="Edit Item">
+                            <i class="fas fa-edit"></i>
                         </button>
                         <button class="delete-btn" data-item="${item.description}">
                             <i class="fas fa-trash"></i>
@@ -1072,7 +1100,12 @@
             const companyName = companyNameInput.value || 'Your Company';
             const companyAddress = document.getElementById('company-address').value || '';
             const companyPhone = document.getElementById('company-phone').value || '';
-            const clientName = clientNameInput.value || 'Client Name';
+            const customerFirstName = customerFirstNameInput.value || '';
+            const customerLastName = customerLastNameInput.value || '';
+            const customerCompany = customerCompanyInput.value || '';
+            const clientName = customerFirstName && customerLastName ? 
+                `${customerFirstName} ${customerLastName}` : 
+                customerCompany || 'Client Name';
             const customerAddress = document.getElementById('customer-address').value || '';
             const customerPhone = document.getElementById('customer-phone').value || '';
             const invoiceDate = invoiceDateInput.value || today;
@@ -1185,44 +1218,58 @@
              }
              
              if (searchTerm) {
-                 filteredInvoices = filteredInvoices.filter(invoice => 
-                     invoice.clientName.toLowerCase().includes(searchTerm) ||
-                     invoice.invoiceNumber.toLowerCase().includes(searchTerm) ||
-                     invoice.companyName.toLowerCase().includes(searchTerm)
-                 );
+                 filteredInvoices = filteredInvoices.filter(invoice => {
+                     const clientName = invoice.customerFirstName && invoice.customerLastName ? 
+                         `${invoice.customerFirstName} ${invoice.customerLastName}` : 
+                         invoice.customerCompany || '';
+                     return clientName.toLowerCase().includes(searchTerm) ||
+                         invoice.invoiceNumber.toLowerCase().includes(searchTerm) ||
+                         invoice.companyName.toLowerCase().includes(searchTerm);
+                 });
              }
              
-             savedInvoicesList.innerHTML = filteredInvoices.map(invoice => `
-                 <li>
-                     <div class="invoice-info">
-                         <div><strong>${invoice.invoiceNumber}</strong></div>
-                         <div>${invoice.clientName}</div>
-                         <div>${invoice.companyName}</div>
-                         <div>${new Date(invoice.createdAt).toLocaleDateString()}</div>
-                     </div>
-                     <div class="invoice-actions">
-                         <div class="status-indicator status-${invoice.status}">
-                             <i class="fas fa-${invoice.status === 'draft' ? 'edit' : invoice.status === 'sent' ? 'paper-plane' : 'check'}"></i>
-                             ${invoice.status}
+             savedInvoicesList.innerHTML = filteredInvoices.map(invoice => {
+                 const clientName = invoice.customerFirstName && invoice.customerLastName ? 
+                     `${invoice.customerFirstName} ${invoice.customerLastName}` : 
+                     invoice.customerCompany || 'Client Name';
+                 
+                 return `
+                     <li>
+                         <div class="invoice-info">
+                             <div><strong>${invoice.invoiceNumber}</strong></div>
+                             <div>${clientName}</div>
+                             <div>${invoice.companyName}</div>
+                             <div>${new Date(invoice.createdAt).toLocaleDateString()}</div>
                          </div>
-                         <div class="action-buttons">
-                             <button class="load-invoice-btn" data-id="${invoice.id}" title="Load Invoice">
-                                 <i class="fas fa-edit"></i>
-                             </button>
-                             <button class="delete-invoice-btn" data-id="${invoice.id}" title="Delete Invoice">
-                                 <i class="fas fa-trash"></i>
-                             </button>
+                         <div class="invoice-actions">
+                             <div class="status-indicator status-${invoice.status}">
+                                 <i class="fas fa-${invoice.status === 'draft' ? 'edit' : invoice.status === 'sent' ? 'paper-plane' : 'check'}"></i>
+                                 ${invoice.status}
+                             </div>
+                             <div class="action-buttons">
+                                 <button class="import-btn" data-id="${invoice.id}" title="Import Invoice">
+                                     <i class="fas fa-plus"></i>
+                                 </button>
+                                 <button class="edit-btn" data-id="${invoice.id}" title="Edit Invoice">
+                                     <i class="fas fa-edit"></i>
+                                 </button>
+                                 <button class="delete-invoice-btn" data-id="${invoice.id}" title="Delete Invoice">
+                                     <i class="fas fa-trash"></i>
+                                 </button>
+                             </div>
                          </div>
-                     </div>
-                 </li>
-             `).join('');
+                     </li>
+                 `;
+             }).join('');
          }
 
                  function loadInvoice(invoiceId) {
             const invoice = invoiceData.invoices.find(inv => inv.id === invoiceId);
             if (invoice) {
                 companyNameInput.value = invoice.companyName || '';
-                clientNameInput.value = invoice.clientName || '';
+                customerFirstNameInput.value = invoice.customerFirstName || '';
+                customerLastNameInput.value = invoice.customerLastName || '';
+                customerCompanyInput.value = invoice.customerCompany || '';
                 document.getElementById('company-address').value = invoice.companyAddress || '';
                 document.getElementById('company-phone').value = invoice.companyPhone || '';
                 document.getElementById('customer-address').value = invoice.customerAddress || '';
@@ -1256,7 +1303,9 @@
                 companyName: companyNameInput.value,
                 companyAddress: document.getElementById('company-address').value,
                 companyPhone: document.getElementById('company-phone').value,
-                clientName: clientNameInput.value,
+                customerFirstName: customerFirstNameInput.value,
+                customerLastName: customerLastNameInput.value,
+                customerCompany: customerCompanyInput.value,
                 customerAddress: document.getElementById('customer-address').value,
                 customerPhone: document.getElementById('customer-phone').value,
                 invoiceDate: invoiceDateInput.value,
@@ -1328,12 +1377,30 @@
         document.getElementById('import-data').addEventListener('click', importData);
 
         document.getElementById('save-client-btn')?.addEventListener('click', () => {
-            const clientName = clientNameInput.value.trim();
-            if (clientName && !invoiceData.clients.includes(clientName)) {
+            const customerFirstName = customerFirstNameInput.value.trim();
+            const customerLastName = customerLastNameInput.value.trim();
+            const customerCompany = customerCompanyInput.value.trim();
+            
+            let clientName = '';
+            if (customerFirstName && customerLastName) {
+                clientName = `${customerFirstName} ${customerLastName}`;
+                if (customerCompany) {
+                    clientName += ` - ${customerCompany}`;
+                }
+            } else if (customerCompany) {
+                clientName = customerCompany;
+            } else {
+                showNotification('Please enter at least a first name and last name, or a company name', 'warning');
+                return;
+            }
+            
+            if (!invoiceData.clients.includes(clientName)) {
                 invoiceData.clients.push(clientName);
                 saveData();
                 renderClientsList();
                 showNotification('Client saved successfully');
+            } else {
+                showNotification('Client already exists', 'warning');
             }
         });
 
@@ -1454,11 +1521,91 @@
             if (e.target.closest('.delete-btn')) {
                 const clientName = e.target.closest('.delete-btn').dataset.client;
                 deleteClient(clientName);
+            } else if (e.target.closest('.edit-btn')) {
+                const clientName = e.target.closest('.edit-btn').dataset.client;
+                const span = e.target.closest('.edit-btn').parentElement.previousElementSibling;
+                const currentText = span.textContent;
+                
+                // Create input field for editing
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = currentText;
+                input.className = 'edit-input';
+                input.style.width = '100%';
+                input.style.padding = '0.25rem';
+                input.style.border = '1px solid var(--border-color)';
+                input.style.borderRadius = '4px';
+                
+                // Replace span with input
+                span.style.display = 'none';
+                span.parentElement.insertBefore(input, span);
+                input.focus();
+                input.select();
+                
+                // Handle save on enter or blur
+                const saveEdit = () => {
+                    const newValue = input.value.trim();
+                    if (newValue && newValue !== currentText) {
+                        const index = invoiceData.clients.indexOf(clientName);
+                        if (index !== -1) {
+                            invoiceData.clients[index] = newValue;
+                            saveData();
+                            renderClientsList();
+                            showNotification('Client updated successfully');
+                        }
+                    } else {
+                        span.style.display = 'inline';
+                    }
+                    input.remove();
+                };
+                
+                input.addEventListener('blur', saveEdit);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        saveEdit();
+                    } else if (e.key === 'Escape') {
+                        span.style.display = 'inline';
+                        input.remove();
+                    }
+                });
             } else if (e.target.closest('.import-btn')) {
                 const clientName = e.target.closest('.import-btn').dataset.client;
-                clientNameInput.value = clientName;
+                
+                // Parse the client name to populate the new fields
+                if (clientName.includes(' - ')) {
+                    // Format: "First Last - Company"
+                    const parts = clientName.split(' - ');
+                    const nameParts = parts[0].split(' ');
+                    if (nameParts.length >= 2) {
+                        customerFirstNameInput.value = nameParts[0];
+                        customerLastNameInput.value = nameParts.slice(1).join(' ');
+                        customerCompanyInput.value = parts[1];
+                    } else {
+                        customerFirstNameInput.value = nameParts[0];
+                        customerLastNameInput.value = '';
+                        customerCompanyInput.value = parts[1];
+                    }
+                } else if (clientName.includes(' ')) {
+                    // Format: "First Last" (no company)
+                    const nameParts = clientName.split(' ');
+                    if (nameParts.length >= 2) {
+                        customerFirstNameInput.value = nameParts[0];
+                        customerLastNameInput.value = nameParts.slice(1).join(' ');
+                        customerCompanyInput.value = '';
+                    } else {
+                        customerFirstNameInput.value = clientName;
+                        customerLastNameInput.value = '';
+                        customerCompanyInput.value = '';
+                    }
+                } else {
+                    // Single word - treat as company name
+                    customerFirstNameInput.value = '';
+                    customerLastNameInput.value = '';
+                    customerCompanyInput.value = clientName;
+                }
+                
                 renderPreview();
-                showNotification(`Customer name set to: ${clientName}`);
+                showNotification(`Customer information imported: ${clientName}`);
             }
         });
 
@@ -1466,6 +1613,53 @@
              if (e.target.closest('.delete-btn')) {
                  const itemDescription = e.target.closest('.delete-btn').dataset.item;
                  deleteItem(itemDescription);
+             } else if (e.target.closest('.edit-btn')) {
+                 const itemDescription = e.target.closest('.edit-btn').dataset.item;
+                 const span = e.target.closest('.edit-btn').parentElement.previousElementSibling;
+                 const currentText = span.textContent;
+                 
+                 // Create input field for editing
+                 const input = document.createElement('input');
+                 input.type = 'text';
+                 input.value = currentText.split(' (')[0]; // Remove the rate part
+                 input.className = 'edit-input';
+                 input.style.width = '100%';
+                 input.style.padding = '0.25rem';
+                 input.style.border = '1px solid var(--border-color)';
+                 input.style.borderRadius = '4px';
+                 
+                 // Replace span with input
+                 span.style.display = 'none';
+                 span.parentElement.insertBefore(input, span);
+                 input.focus();
+                 input.select();
+                 
+                 // Handle save on enter or blur
+                 const saveEdit = () => {
+                     const newValue = input.value.trim();
+                     if (newValue && newValue !== currentText.split(' (')[0]) {
+                         const item = invoiceData.items.find(item => item.description === itemDescription);
+                         if (item) {
+                             item.description = newValue;
+                             saveData();
+                             renderItemsList();
+                             showNotification('Item updated successfully');
+                         }
+                     } else {
+                         span.style.display = 'inline';
+                     }
+                     input.remove();
+                 };
+                 
+                 input.addEventListener('blur', saveEdit);
+                 input.addEventListener('keydown', (e) => {
+                     if (e.key === 'Enter') {
+                         saveEdit();
+                     } else if (e.key === 'Escape') {
+                         span.style.display = 'inline';
+                         input.remove();
+                     }
+                 });
              } else if (e.target.closest('.import-btn')) {
                  const itemDescription = e.target.closest('.import-btn').dataset.item;
                  const itemRate = parseFloat(e.target.closest('.import-btn').dataset.rate);
@@ -1483,9 +1677,41 @@
          });
 
          savedInvoicesList.addEventListener('click', (e) => {
-             if (e.target.closest('.load-invoice-btn')) {
-                 const invoiceId = e.target.closest('.load-invoice-btn').dataset.id;
+             if (e.target.closest('.import-btn')) {
+                 const invoiceId = e.target.closest('.import-btn').dataset.id;
+                 const invoice = invoiceData.invoices.find(inv => inv.id === invoiceId);
+                 if (invoice) {
+                     // Import customer information
+                     customerFirstNameInput.value = invoice.customerFirstName || '';
+                     customerLastNameInput.value = invoice.customerLastName || '';
+                     customerCompanyInput.value = invoice.customerCompany || '';
+                     document.getElementById('customer-address').value = invoice.customerAddress || '';
+                     document.getElementById('customer-phone').value = invoice.customerPhone || '';
+                     
+                     // Import company information
+                     companyNameInput.value = invoice.companyName || '';
+                     document.getElementById('company-address').value = invoice.companyAddress || '';
+                     document.getElementById('company-phone').value = invoice.companyPhone || '';
+                     
+                     // Import invoice settings
+                     invoiceDateInput.value = invoice.invoiceDate || '';
+                     dueDateInput.value = invoice.dueDate || '';
+                     invoiceNumberInput.value = invoice.invoiceNumber || '';
+                     currencySelect.value = invoice.currency || 'USD';
+                     taxRateInput.value = invoice.taxRate || 0;
+                     discountInput.value = invoice.discount || 0;
+                     
+                     // Import line items
+                     lineItems = [...invoice.items];
+                     
+                     renderLineItems();
+                     renderPreview();
+                     showNotification(`Invoice "${invoice.invoiceNumber}" imported successfully`);
+                 }
+             } else if (e.target.closest('.edit-btn')) {
+                 const invoiceId = e.target.closest('.edit-btn').dataset.id;
                  loadInvoice(invoiceId);
+                 showNotification('Invoice loaded for editing');
              } else if (e.target.closest('.delete-invoice-btn')) {
                  const invoiceId = e.target.closest('.delete-invoice-btn').dataset.id;
                  deleteInvoice(invoiceId);
@@ -1496,7 +1722,7 @@
          document.getElementById('invoice-status-filter')?.addEventListener('change', renderInvoicesList);
          document.getElementById('invoice-search')?.addEventListener('input', renderInvoicesList);
 
-                         [companyNameInput, clientNameInput, invoiceDateInput, dueDateInput, invoiceNumberInput, currencySelect, taxRateInput, discountInput, 
+                         [companyNameInput, customerFirstNameInput, customerLastNameInput, customerCompanyInput, invoiceDateInput, dueDateInput, invoiceNumberInput, currencySelect, taxRateInput, discountInput, 
          document.getElementById('company-address'), document.getElementById('company-phone'), document.getElementById('customer-address'), document.getElementById('customer-phone'), document.getElementById('logo-position')].forEach(input => {
             if (input) {
                 input.addEventListener('input', () => {
