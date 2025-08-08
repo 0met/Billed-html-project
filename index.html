@@ -289,6 +289,51 @@
             color: var(--text-color);
         }
         
+        /* PDF-specific optimizations */
+        @media print {
+            .preview-invoice {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            
+            .preview-invoice .company-info h3 {
+                font-size: 1.25rem;
+            }
+            
+            .preview-invoice .invoice-detail-item {
+                font-size: 0.8rem;
+            }
+            
+            .preview-invoice th, .preview-invoice td {
+                padding: 0.4rem 0;
+                font-size: 0.8rem;
+            }
+            
+            .preview-invoice .totals-section {
+                margin-top: 1rem;
+            }
+        }
+        
+        /* PDF export optimizations */
+        .preview-invoice.pdf-export {
+            background: white;
+            color: black;
+            padding: 20px;
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        
+        .preview-invoice.pdf-export .invoice-detail-item {
+            font-size: 0.8rem;
+        }
+        
+        .preview-invoice.pdf-export th, 
+        .preview-invoice.pdf-export td {
+            font-size: 0.8rem;
+            padding: 0.4rem 0;
+        }
+        
         .preview-invoice .company-info p {
             margin: 0.25rem 0;
             color: var(--text-color);
@@ -304,6 +349,25 @@
             margin: 0.25rem 0;
             color: var(--text-color);
         }
+        
+        .preview-invoice .invoice-details {
+            margin: 1rem 0 2rem 0;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .preview-invoice .invoice-details-left {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .preview-invoice .invoice-detail-item {
+            margin: 0;
+            font-size: 0.875rem;
+            color: var(--text-color);
+            opacity: 0.9;
+        }
         .preview-invoice table {
             width: 100%;
             border-collapse: collapse;
@@ -314,8 +378,9 @@
         }
         .preview-invoice th, .preview-invoice td {
             text-align: left;
-            padding: 0.75rem 0;
+            padding: 0.5rem 0;
             border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
         }
         .preview-invoice th {
             font-weight: 600;
@@ -1225,9 +1290,13 @@
                         ${customerCompany ? `<p style="margin: 0.25rem 0;"><strong>Company:</strong> ${customerCompany}</p>` : ''}
                         ${customerAddress ? `<p style="margin: 0.25rem 0;"><strong>Address:</strong> ${customerAddress}</p>` : ''}
                         ${customerPhone ? `<p style="margin: 0.25rem 0;"><strong>Phone:</strong> 📞 ${customerPhone}</p>` : ''}
-                        <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
-                        <p><strong>Date:</strong> ${invoiceDate}</p>
-                        <p><strong>Due Date:</strong> ${dueDate}</p>
+                    </div>
+                </div>
+                <div class="invoice-details">
+                    <div class="invoice-details-left">
+                        <p class="invoice-detail-item"><strong>Invoice #:</strong> ${invoiceNumber}</p>
+                        <p class="invoice-detail-item"><strong>Date:</strong> ${invoiceDate}</p>
+                        <p class="invoice-detail-item"><strong>Due Date:</strong> ${dueDate}</p>
                     </div>
                 </div>
                 <table>
@@ -1848,11 +1917,19 @@
         document.getElementById('download-pdf').addEventListener('click', () => {
             const { jsPDF } = window.jspdf;
             const previewElement = document.getElementById('invoice-preview');
+            
+            // Add print class for PDF optimization
+            previewElement.classList.add('pdf-export');
+            
+            // Show loading notification
+            showNotification('Generating PDF...', 'info');
 
             html2canvas(previewElement, { 
                 scale: 2,
                 useCORS: true,
-                allowTaint: true
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
@@ -1874,9 +1951,14 @@
                 
                 const fileName = `invoice-${invoiceNumberInput.value || 'draft'}.pdf`;
                 pdf.save(fileName);
+                
+                // Remove print class
+                previewElement.classList.remove('pdf-export');
                 showNotification('PDF downloaded successfully');
             }).catch(error => {
+                previewElement.classList.remove('pdf-export');
                 showNotification('Error generating PDF', 'error');
+                console.error('PDF generation error:', error);
             });
         });
 
