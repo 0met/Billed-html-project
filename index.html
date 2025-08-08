@@ -183,6 +183,35 @@
         .line-items-table .amount {
             font-weight: 500;
         }
+        .description-container {
+            position: relative;
+            width: 100%;
+        }
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .suggestion-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+        .suggestion-item:hover {
+            background: var(--secondary);
+        }
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
         #add-line-item {
             margin-top: 1rem;
             background: transparent;
@@ -511,6 +540,12 @@
                 <i class="fas fa-plus"></i> Add Item
             </button>
             
+            <div class="button-group" style="margin-top: 1rem;">
+                <button id="save-item-btn" class="transparent-btn">
+                    <i class="fas fa-save"></i> Save Current Item
+                </button>
+            </div>
+            
             <div class="totals-section">
                 <div class="total-row">
                     <span>Subtotal:</span>
@@ -673,13 +708,6 @@
         }
         
         function renderItemsList() {
-            const itemDatalists = document.querySelectorAll('.items-list');
-            itemDatalists.forEach(list => {
-                list.innerHTML = invoiceData.items.map(item => 
-                    `<option value="${item.description}"></option>`
-                ).join('');
-            });
-
             savedItemsList.innerHTML = invoiceData.items.map(item => `
                 <li>
                     <span>${item.description} (${getCurrencySymbol()}${item.rate.toFixed(2)})</span>
@@ -688,6 +716,38 @@
                     </button>
                 </li>
             `).join('');
+        }
+
+        function showSuggestions(input, index) {
+            const dropdown = document.getElementById(`suggestions-${index}`);
+            const value = input.value.toLowerCase();
+            
+            if (value.length < 2) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            const suggestions = invoiceData.items.filter(item => 
+                item.description.toLowerCase().includes(value)
+            );
+
+            if (suggestions.length > 0) {
+                dropdown.innerHTML = suggestions.map(item => `
+                    <div class="suggestion-item" data-description="${item.description}" data-rate="${item.rate}">
+                        ${item.description} (${getCurrencySymbol()}${item.rate.toFixed(2)})
+                    </div>
+                `).join('');
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function hideSuggestions(index) {
+            const dropdown = document.getElementById(`suggestions-${index}`);
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
         }
 
         function getCurrencySymbol() {
@@ -702,8 +762,11 @@
                 const row = document.createElement('tr');
                 const amount = item.quantity * item.rate;
                 row.innerHTML = `
-                    <td><input type="text" placeholder="Description" value="${item.description}" data-idx="${index}" class="description-input" list="items-list-${index}">
-                        <datalist id="items-list-${index}" class="items-list"></datalist>
+                    <td>
+                        <div class="description-container">
+                            <input type="text" placeholder="Enter item description..." value="${item.description}" data-idx="${index}" class="description-input">
+                            <div class="suggestions-dropdown" id="suggestions-${index}" style="display: none;"></div>
+                        </div>
                     </td>
                     <td><input type="number" min="1" value="${item.quantity}" data-idx="${index}" class="quantity-input"></td>
                     <td><input type="number" min="0" step="0.01" value="${item.rate}" data-idx="${index}" class="rate-input"></td>
@@ -716,7 +779,6 @@
             });
             updateTotals();
             renderPreview();
-            renderItemsList();
         }
 
         function addItem() {
@@ -926,13 +988,26 @@
         });
 
         document.getElementById('save-item-btn')?.addEventListener('click', () => {
-            const lastItem = lineItems[lineItems.length - 1];
-            const description = lastItem.description.trim();
-            if (description && !getSavedItem(description)) {
-                invoiceData.items.push(lastItem);
-                saveData();
-                renderItemsList();
-                showNotification('Item saved successfully');
+            // Find the last non-empty item
+            const lastNonEmptyItem = lineItems.findLast(item => item.description.trim() !== '');
+            if (lastNonEmptyItem) {
+                const description = lastNonEmptyItem.description.trim();
+                if (description && !getSavedItem(description)) {
+                    invoiceData.items.push({
+                        description: description,
+                        quantity: lastNonEmptyItem.quantity,
+                        rate: lastNonEmptyItem.rate
+                    });
+                    saveData();
+                    renderItemsList();
+                    showNotification('Item saved successfully');
+                } else if (description && getSavedItem(description)) {
+                    showNotification('Item already exists in library', 'warning');
+                } else {
+                    showNotification('Please enter a description first', 'warning');
+                }
+            } else {
+                showNotification('Please add an item with description first', 'warning');
             }
         });
         
@@ -942,11 +1017,7 @@
             
             if (target.classList.contains('description-input')) {
                 lineItems[index].description = target.value;
-                const savedItem = getSavedItem(target.value);
-                if (savedItem) {
-                    lineItems[index].quantity = savedItem.quantity;
-                    lineItems[index].rate = savedItem.rate;
-                }
+                showSuggestions(target, index);
             } else if (target.classList.contains('quantity-input')) {
                 lineItems[index].quantity = Math.max(1, parseFloat(target.value));
             } else if (target.classList.contains('rate-input')) {
@@ -960,8 +1031,32 @@
             if (e.target.closest('.remove-item')) {
                 removeItem(parseInt(e.target.closest('.remove-item').dataset.idx));
                 triggerAutoSave();
+            } else if (e.target.closest('.suggestion-item')) {
+                const suggestionItem = e.target.closest('.suggestion-item');
+                const description = suggestionItem.dataset.description;
+                const rate = parseFloat(suggestionItem.dataset.rate);
+                const index = parseInt(suggestionItem.closest('tr').querySelector('.description-input').dataset.idx);
+                
+                lineItems[index].description = description;
+                lineItems[index].rate = rate;
+                
+                hideSuggestions(index);
+                renderLineItems();
+                triggerAutoSave();
             }
         });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.description-container')) {
+                const dropdowns = document.querySelectorAll('.suggestions-dropdown');
+                dropdowns.forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
+
+
 
         savedClientsList.addEventListener('click', (e) => {
             if (e.target.closest('.delete-btn')) {
