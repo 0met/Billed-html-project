@@ -330,6 +330,41 @@
         .saved-data-section h3 {
             font-size: 1.25rem;
             margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .toggle-section-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .toggle-section-btn:hover {
+            background: var(--secondary);
+        }
+
+        .toggle-section-btn.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .section-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
         }
 
         .section-separator {
@@ -841,27 +876,48 @@
             </div>
 
             <div class="saved-data-section">
-                <h3><i class="fas fa-users"></i> Manage Saved Clients</h3>
-                <ul id="saved-clients-list" class="saved-data-list"></ul>
+                <h3>
+                    <i class="fas fa-users"></i> Manage Saved Clients
+                    <button class="toggle-section-btn" data-section="clients">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </h3>
+                <div class="section-content" id="clients-content">
+                    <ul id="saved-clients-list" class="saved-data-list"></ul>
+                </div>
             </div>
             
             <div class="saved-data-section">
-                <h3><i class="fas fa-box"></i> Manage Saved Items</h3>
-                <ul id="saved-items-list" class="saved-data-list"></ul>
+                <h3>
+                    <i class="fas fa-box"></i> Manage Saved Items
+                    <button class="toggle-section-btn" data-section="items">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </h3>
+                <div class="section-content" id="items-content">
+                    <ul id="saved-items-list" class="saved-data-list"></ul>
+                </div>
             </div>
              
              <div class="saved-data-section">
-                 <h3><i class="fas fa-file-invoice"></i> Manage Saved Invoices</h3>
-                 <div class="invoices-filter">
-                     <select id="invoice-status-filter">
-                         <option value="all">All Status</option>
-                         <option value="draft">Draft</option>
-                         <option value="sent">Sent</option>
-                         <option value="paid">Paid</option>
-                     </select>
-                     <input type="text" id="invoice-search" placeholder="Search invoices...">
+                 <h3>
+                     <i class="fas fa-file-invoice"></i> Manage Saved Invoices
+                     <button class="toggle-section-btn" data-section="invoices">
+                         <i class="fas fa-chevron-down"></i>
+                     </button>
+                 </h3>
+                 <div class="section-content" id="invoices-content">
+                     <div class="invoices-filter">
+                         <select id="invoice-status-filter">
+                             <option value="all">All Status</option>
+                             <option value="draft">Draft</option>
+                             <option value="sent">Sent</option>
+                             <option value="paid">Paid</option>
+                         </select>
+                         <input type="text" id="invoice-search" placeholder="Search invoices...">
+                     </div>
+                     <ul id="saved-invoices-list" class="saved-data-list"></ul>
                  </div>
-                 <ul id="saved-invoices-list" class="saved-data-list"></ul>
              </div>
         </section>
 
@@ -1521,6 +1577,7 @@
                 triggerAutoSave();
             } else if (target.classList.contains('rate-input')) {
                 lineItems[index].rate = Math.max(0, parseFloat(target.value));
+                updateAmountDisplay(index);
                 updateTotals();
                 renderPreview();
                 triggerAutoSave();
@@ -1826,6 +1883,40 @@
         // Email functionality (placeholder)
         document.getElementById('send-email').addEventListener('click', () => {
             showNotification('Email feature coming soon!', 'warning');
+        });
+
+        // Toggle section functionality
+        document.querySelectorAll('.toggle-section-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const section = btn.dataset.section;
+                const content = document.getElementById(`${section}-content`);
+                const icon = btn.querySelector('i');
+                
+                if (content.classList.contains('collapsed')) {
+                    // Expand
+                    content.classList.remove('collapsed');
+                    btn.classList.remove('collapsed');
+                    icon.className = 'fas fa-chevron-down';
+                } else {
+                    // Collapse
+                    content.classList.add('collapsed');
+                    btn.classList.add('collapsed');
+                    icon.className = 'fas fa-chevron-right';
+                }
+            });
+        });
+
+        // Make section headers clickable for toggle
+        document.querySelectorAll('.saved-data-section h3').forEach(header => {
+            header.addEventListener('click', (e) => {
+                if (!e.target.closest('.toggle-section-btn')) {
+                    const btn = header.querySelector('.toggle-section-btn');
+                    if (btn) {
+                        btn.click();
+                    }
+                }
+            });
         });
 
                  // Initial load and render
