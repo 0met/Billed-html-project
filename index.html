@@ -126,17 +126,18 @@
             font-weight: 500;
             margin-bottom: 0.5rem;
         }
-        input[type="text"], input[type="number"], input[type="date"], select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            background: var(--card-bg);
-            color: var(--text-color);
-            transition: border-color 0.2s;
-            box-sizing: border-box;
-        }
+                 input[type="text"], input[type="number"], input[type="date"], input[type="tel"], select, textarea {
+             width: 100%;
+             padding: 0.75rem 1rem;
+             border: 1px solid var(--border-color);
+             border-radius: 8px;
+             font-size: 1rem;
+             background: var(--card-bg);
+             color: var(--text-color);
+             transition: border-color 0.2s;
+             box-sizing: border-box;
+             resize: vertical;
+         }
         input:focus, select:focus {
             outline: none;
             border-color: var(--focus-color);
@@ -341,9 +342,93 @@
             justify-content: flex-end;
             flex-wrap: wrap;
         }
-        .button-group button {
-            width: auto;
-        }
+                 .button-group button {
+             width: auto;
+         }
+         .logo-upload-container {
+             display: flex;
+             flex-direction: column;
+             gap: 1rem;
+         }
+         .logo-preview {
+             position: relative;
+             display: inline-block;
+             max-width: 200px;
+             border: 2px dashed var(--border-color);
+             border-radius: 8px;
+             padding: 1rem;
+             text-align: center;
+         }
+         .logo-preview img {
+             max-width: 100%;
+             max-height: 100px;
+             object-fit: contain;
+         }
+         .remove-logo-btn {
+             position: absolute;
+             top: -8px;
+             right: -8px;
+             background: var(--error-color);
+             color: white;
+             border: none;
+             border-radius: 50%;
+             width: 24px;
+             height: 24px;
+             font-size: 0.8rem;
+             cursor: pointer;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             transition: background 0.2s ease;
+         }
+         .remove-logo-btn:hover {
+             background: #dc2626;
+         }
+         .invoices-filter {
+             display: flex;
+             gap: 1rem;
+             margin-bottom: 1rem;
+             flex-wrap: wrap;
+         }
+         .invoices-filter select,
+         .invoices-filter input {
+             flex: 1;
+             min-width: 150px;
+         }
+         .invoice-info {
+             display: flex;
+             flex-direction: column;
+             gap: 0.25rem;
+             flex: 1;
+         }
+         .invoice-actions {
+             display: flex;
+             align-items: center;
+             gap: 1rem;
+         }
+         .action-buttons {
+             display: flex;
+             gap: 0.5rem;
+         }
+         .action-buttons button {
+             background: none;
+             border: none;
+             color: var(--text-color);
+             padding: 0.5rem;
+             font-size: 1rem;
+             cursor: pointer;
+             border-radius: 4px;
+             transition: background 0.2s ease;
+         }
+         .action-buttons button:hover {
+             background: var(--secondary);
+         }
+         .load-invoice-btn {
+             color: var(--primary) !important;
+         }
+         .delete-invoice-btn {
+             color: var(--error-color) !important;
+         }
         .status-indicator {
             display: inline-flex;
             align-items: center;
@@ -492,22 +577,59 @@
         <section class="form-section">
             <h2><i class="fas fa-edit"></i> Create New Invoice</h2>
             
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="company-name">Your Company Name</label>
-                    <input type="text" id="company-name" placeholder="InvoiceFlow Inc.">
-                </div>
-                <div class="form-group">
-                    <label for="client-name">Client Name</label>
-                    <input type="text" id="client-name" list="clients-list" placeholder="John Doe">
-                    <datalist id="clients-list"></datalist>
-                    <div class="button-group" style="margin-top: 0.5rem;">
-                        <button id="save-client-btn" class="transparent-btn">
-                            <i class="fas fa-save"></i> Save Client
-                        </button>
-                    </div>
-                </div>
-            </div>
+                         <div class="form-row">
+                 <div class="form-group">
+                     <label for="company-name">Your Company Name</label>
+                     <input type="text" id="company-name" placeholder="InvoiceFlow Inc.">
+                 </div>
+                 <div class="form-group">
+                     <label for="client-name">Client Name</label>
+                     <input type="text" id="client-name" list="clients-list" placeholder="John Doe">
+                     <datalist id="clients-list"></datalist>
+                     <div class="button-group" style="margin-top: 0.5rem;">
+                         <button id="save-client-btn" class="transparent-btn">
+                             <i class="fas fa-save"></i> Save Client
+                         </button>
+                     </div>
+                 </div>
+             </div>
+
+             <div class="form-row">
+                 <div class="form-group">
+                     <label for="company-address">Company Address</label>
+                     <textarea id="company-address" placeholder="123 Business St, City, State 12345" rows="3"></textarea>
+                 </div>
+                 <div class="form-group">
+                     <label for="company-phone">Company Phone</label>
+                     <input type="tel" id="company-phone" placeholder="+1 (555) 123-4567">
+                 </div>
+             </div>
+
+             <div class="form-row">
+                 <div class="form-group">
+                     <label for="company-logo">Company Logo</label>
+                     <div class="logo-upload-container">
+                         <input type="file" id="company-logo" accept="image/*" style="display: none;">
+                         <button type="button" id="upload-logo-btn" class="transparent-btn">
+                             <i class="fas fa-upload"></i> Upload Logo
+                         </button>
+                         <div id="logo-preview" class="logo-preview" style="display: none;">
+                             <img id="logo-image" alt="Company Logo">
+                             <button type="button" id="remove-logo-btn" class="remove-logo-btn">
+                                 <i class="fas fa-times"></i>
+                             </button>
+                         </div>
+                     </div>
+                 </div>
+                 <div class="form-group">
+                     <label for="logo-position">Logo Position</label>
+                     <select id="logo-position">
+                         <option value="left">Left</option>
+                         <option value="center">Center</option>
+                         <option value="right">Right</option>
+                     </select>
+                 </div>
+             </div>
 
             <div class="form-row">
                 <div class="form-group">
@@ -608,10 +730,24 @@
                 <ul id="saved-clients-list" class="saved-data-list"></ul>
             </div>
             
-            <div class="saved-data-section">
-                <h3><i class="fas fa-box"></i> Manage Saved Items</h3>
-                <ul id="saved-items-list" class="saved-data-list"></ul>
-            </div>
+                         <div class="saved-data-section">
+                 <h3><i class="fas fa-box"></i> Manage Saved Items</h3>
+                 <ul id="saved-items-list" class="saved-data-list"></ul>
+             </div>
+             
+             <div class="saved-data-section">
+                 <h3><i class="fas fa-file-invoice"></i> Manage Saved Invoices</h3>
+                 <div class="invoices-filter">
+                     <select id="invoice-status-filter">
+                         <option value="all">All Status</option>
+                         <option value="draft">Draft</option>
+                         <option value="sent">Sent</option>
+                         <option value="paid">Paid</option>
+                     </select>
+                     <input type="text" id="invoice-search" placeholder="Search invoices...">
+                 </div>
+                 <ul id="saved-invoices-list" class="saved-data-list"></ul>
+             </div>
         </section>
 
         <section class="preview-section">
@@ -669,9 +805,10 @@
         const taxDisplay = document.getElementById('tax-display');
         const totalAmountDisplay = document.getElementById('total-amount-display');
         const clientsDatalist = document.getElementById('clients-list');
-        const savedClientsList = document.getElementById('saved-clients-list');
-        const savedItemsList = document.getElementById('saved-items-list');
-        const autoSaveIndicator = document.getElementById('auto-save-indicator');
+                 const savedClientsList = document.getElementById('saved-clients-list');
+         const savedItemsList = document.getElementById('saved-items-list');
+         const savedInvoicesList = document.getElementById('saved-invoices-list');
+         const autoSaveIndicator = document.getElementById('auto-save-indicator');
 
         // Auto-save functionality
         let autoSaveTimeout;
@@ -703,16 +840,25 @@
             }, 3000);
         }
 
-        function loadData() {
-            const savedData = localStorage.getItem('invoiceFlowData');
-            if (savedData) {
-                const parsedData = JSON.parse(savedData);
-                invoiceData.clients = parsedData.clients || [];
-                invoiceData.items = parsedData.items || [];
-                invoiceData.invoices = parsedData.invoices || [];
-                invoiceData.settings = parsedData.settings || invoiceData.settings;
-            }
-        }
+                 function loadData() {
+             const savedData = localStorage.getItem('invoiceFlowData');
+             if (savedData) {
+                 const parsedData = JSON.parse(savedData);
+                 invoiceData.clients = parsedData.clients || [];
+                 invoiceData.items = parsedData.items || [];
+                 invoiceData.invoices = parsedData.invoices || [];
+                 invoiceData.settings = parsedData.settings || invoiceData.settings;
+             }
+             
+             // Load logo if saved
+             const savedLogo = localStorage.getItem('invoiceFlowLogo');
+             if (savedLogo) {
+                 const logoImage = document.getElementById('logo-image');
+                 logoImage.src = savedLogo;
+                 document.getElementById('logo-preview').style.display = 'block';
+                 document.getElementById('upload-logo-btn').style.display = 'none';
+             }
+         }
 
         function saveData() {
             localStorage.setItem('invoiceFlowData', JSON.stringify(invoiceData));
@@ -844,29 +990,37 @@
             totalAmountDisplay.textContent = `${getCurrencySymbol()}${total.toFixed(2)}`;
         }
 
-        function renderPreview() {
-            const companyName = companyNameInput.value || 'Your Company';
-            const clientName = clientNameInput.value || 'Client Name';
-            const invoiceDate = invoiceDateInput.value || today;
-            const dueDate = dueDateInput.value || dueDate;
-            const invoiceNumber = invoiceNumberInput.value || 'INV-001';
-            const currency = getCurrencySymbol();
+                 function renderPreview() {
+             const companyName = companyNameInput.value || 'Your Company';
+             const companyAddress = document.getElementById('company-address').value || '';
+             const companyPhone = document.getElementById('company-phone').value || '';
+             const clientName = clientNameInput.value || 'Client Name';
+             const invoiceDate = invoiceDateInput.value || today;
+             const dueDate = dueDateInput.value || dueDate;
+             const invoiceNumber = invoiceNumberInput.value || 'INV-001';
+             const currency = getCurrencySymbol();
+             const logoPosition = document.getElementById('logo-position').value || 'left';
+             const logoImage = document.getElementById('logo-image');
+             const hasLogo = logoImage && logoImage.src && !logoImage.src.endsWith('data:image/svg+xml');
 
-            let previewHTML = `
-                <div class="preview-header">
-                    <div>
-                        <h3>${companyName}</h3>
-                        <p>Invoice for: <strong>${clientName}</strong></p>
-                        <p>Due Date: <strong>${dueDate}</strong></p>
-                    </div>
-                    <div>
-                        <p>Invoice #: <strong>${invoiceNumber}</strong></p>
-                        <p>Date: ${invoiceDate}</p>
-                        <div class="status-indicator status-draft">
-                            <i class="fas fa-edit"></i> Draft
-                        </div>
-                    </div>
-                </div>
+                         let previewHTML = `
+                 <div class="preview-header">
+                     <div class="company-info" style="text-align: ${logoPosition === 'center' ? 'center' : logoPosition};">
+                         ${hasLogo ? `<img src="${logoImage.src}" alt="${companyName}" style="max-height: 60px; margin-bottom: 1rem;">` : ''}
+                         <h3>${companyName}</h3>
+                         ${companyAddress ? `<p style="margin: 0.5rem 0;">${companyAddress}</p>` : ''}
+                         ${companyPhone ? `<p style="margin: 0.5rem 0;">📞 ${companyPhone}</p>` : ''}
+                     </div>
+                     <div class="invoice-info">
+                         <p><strong>Invoice for:</strong> ${clientName}</p>
+                         <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
+                         <p><strong>Date:</strong> ${invoiceDate}</p>
+                         <p><strong>Due Date:</strong> ${dueDate}</p>
+                         <div class="status-indicator status-draft">
+                             <i class="fas fa-edit"></i> Draft
+                         </div>
+                     </div>
+                 </div>
                 <table>
                     <thead>
                         <tr>
@@ -934,28 +1088,104 @@
             showNotification('Client deleted successfully');
         }
 
-        function deleteItem(itemDescription) {
-            invoiceData.items = invoiceData.items.filter(i => i.description !== itemDescription);
-            saveData();
-            renderItemsList();
-            showNotification('Item deleted successfully');
-        }
+                 function deleteItem(itemDescription) {
+             invoiceData.items = invoiceData.items.filter(i => i.description !== itemDescription);
+             saveData();
+             renderItemsList();
+             showNotification('Item deleted successfully');
+         }
 
-        function saveInvoice() {
-            const invoice = {
-                id: currentInvoiceId || Date.now().toString(),
-                companyName: companyNameInput.value,
-                clientName: clientNameInput.value,
-                invoiceDate: invoiceDateInput.value,
-                dueDate: dueDateInput.value,
-                invoiceNumber: invoiceNumberInput.value,
-                currency: currencySelect.value,
-                taxRate: parseFloat(taxRateInput.value) || 0,
-                discount: parseFloat(discountInput.value) || 0,
-                items: [...lineItems],
-                status: 'draft',
-                createdAt: new Date().toISOString()
-            };
+         function renderInvoicesList() {
+             const statusFilter = document.getElementById('invoice-status-filter').value;
+             const searchTerm = document.getElementById('invoice-search').value.toLowerCase();
+             
+             let filteredInvoices = invoiceData.invoices;
+             
+             if (statusFilter !== 'all') {
+                 filteredInvoices = filteredInvoices.filter(invoice => invoice.status === statusFilter);
+             }
+             
+             if (searchTerm) {
+                 filteredInvoices = filteredInvoices.filter(invoice => 
+                     invoice.clientName.toLowerCase().includes(searchTerm) ||
+                     invoice.invoiceNumber.toLowerCase().includes(searchTerm) ||
+                     invoice.companyName.toLowerCase().includes(searchTerm)
+                 );
+             }
+             
+             savedInvoicesList.innerHTML = filteredInvoices.map(invoice => `
+                 <li>
+                     <div class="invoice-info">
+                         <div><strong>${invoice.invoiceNumber}</strong></div>
+                         <div>${invoice.clientName}</div>
+                         <div>${invoice.companyName}</div>
+                         <div>${new Date(invoice.createdAt).toLocaleDateString()}</div>
+                     </div>
+                     <div class="invoice-actions">
+                         <div class="status-indicator status-${invoice.status}">
+                             <i class="fas fa-${invoice.status === 'draft' ? 'edit' : invoice.status === 'sent' ? 'paper-plane' : 'check'}"></i>
+                             ${invoice.status}
+                         </div>
+                         <div class="action-buttons">
+                             <button class="load-invoice-btn" data-id="${invoice.id}" title="Load Invoice">
+                                 <i class="fas fa-edit"></i>
+                             </button>
+                             <button class="delete-invoice-btn" data-id="${invoice.id}" title="Delete Invoice">
+                                 <i class="fas fa-trash"></i>
+                             </button>
+                         </div>
+                     </div>
+                 </li>
+             `).join('');
+         }
+
+         function loadInvoice(invoiceId) {
+             const invoice = invoiceData.invoices.find(inv => inv.id === invoiceId);
+             if (invoice) {
+                 companyNameInput.value = invoice.companyName || '';
+                 clientNameInput.value = invoice.clientName || '';
+                 document.getElementById('company-address').value = invoice.companyAddress || '';
+                 document.getElementById('company-phone').value = invoice.companyPhone || '';
+                 invoiceDateInput.value = invoice.invoiceDate || '';
+                 dueDateInput.value = invoice.dueDate || '';
+                 invoiceNumberInput.value = invoice.invoiceNumber || '';
+                 currencySelect.value = invoice.currency || 'USD';
+                 taxRateInput.value = invoice.taxRate || 0;
+                 discountInput.value = invoice.discount || 0;
+                 
+                 lineItems = [...invoice.items];
+                 currentInvoiceId = invoice.id;
+                 
+                 renderLineItems();
+                 renderPreview();
+                 showNotification('Invoice loaded successfully');
+             }
+         }
+
+         function deleteInvoice(invoiceId) {
+             invoiceData.invoices = invoiceData.invoices.filter(inv => inv.id !== invoiceId);
+             saveData();
+             renderInvoicesList();
+             showNotification('Invoice deleted successfully');
+         }
+
+                 function saveInvoice() {
+             const invoice = {
+                 id: currentInvoiceId || Date.now().toString(),
+                 companyName: companyNameInput.value,
+                 companyAddress: document.getElementById('company-address').value,
+                 companyPhone: document.getElementById('company-phone').value,
+                 clientName: clientNameInput.value,
+                 invoiceDate: invoiceDateInput.value,
+                 dueDate: dueDateInput.value,
+                 invoiceNumber: invoiceNumberInput.value,
+                 currency: currencySelect.value,
+                 taxRate: parseFloat(taxRateInput.value) || 0,
+                 discount: parseFloat(discountInput.value) || 0,
+                 items: [...lineItems],
+                 status: 'draft',
+                 createdAt: new Date().toISOString()
+             };
 
             const existingIndex = invoiceData.invoices.findIndex(inv => inv.id === invoice.id);
             if (existingIndex >= 0) {
@@ -1024,29 +1254,64 @@
             }
         });
 
-        document.getElementById('save-item-btn')?.addEventListener('click', () => {
-            // Find the last non-empty item
-            const lastNonEmptyItem = lineItems.findLast(item => item.description.trim() !== '');
-            if (lastNonEmptyItem) {
-                const description = lastNonEmptyItem.description.trim();
-                if (description && !getSavedItem(description)) {
-                    invoiceData.items.push({
-                        description: description,
-                        quantity: lastNonEmptyItem.quantity,
-                        rate: lastNonEmptyItem.rate
-                    });
-                    saveData();
-                    renderItemsList();
-                    showNotification('Item saved successfully');
-                } else if (description && getSavedItem(description)) {
-                    showNotification('Item already exists in library', 'warning');
-                } else {
-                    showNotification('Please enter a description first', 'warning');
-                }
-            } else {
-                showNotification('Please add an item with description first', 'warning');
-            }
-        });
+                 document.getElementById('save-item-btn')?.addEventListener('click', () => {
+             // Find the last non-empty item
+             const lastNonEmptyItem = lineItems.findLast(item => item.description.trim() !== '');
+             if (lastNonEmptyItem) {
+                 const description = lastNonEmptyItem.description.trim();
+                 if (description && !getSavedItem(description)) {
+                     invoiceData.items.push({
+                         description: description,
+                         quantity: lastNonEmptyItem.quantity,
+                         rate: lastNonEmptyItem.rate
+                     });
+                     saveData();
+                     renderItemsList();
+                     showNotification('Item saved successfully');
+                 } else if (description && getSavedItem(description)) {
+                     showNotification('Item already exists in library', 'warning');
+                 } else {
+                     showNotification('Please enter a description first', 'warning');
+                 }
+             } else {
+                 showNotification('Please add an item with description first', 'warning');
+             }
+         });
+
+         // Logo upload functionality
+         document.getElementById('upload-logo-btn')?.addEventListener('click', () => {
+             document.getElementById('company-logo').click();
+         });
+
+         document.getElementById('company-logo')?.addEventListener('change', (e) => {
+             const file = e.target.files[0];
+             if (file) {
+                 const reader = new FileReader();
+                 reader.onload = (e) => {
+                     const logoImage = document.getElementById('logo-image');
+                     logoImage.src = e.target.result;
+                     document.getElementById('logo-preview').style.display = 'block';
+                     document.getElementById('upload-logo-btn').style.display = 'none';
+                     
+                     // Save logo to localStorage
+                     localStorage.setItem('invoiceFlowLogo', e.target.result);
+                     
+                     renderPreview();
+                     showNotification('Logo uploaded successfully');
+                 };
+                 reader.readAsDataURL(file);
+             }
+         });
+
+         document.getElementById('remove-logo-btn')?.addEventListener('click', () => {
+             document.getElementById('logo-preview').style.display = 'none';
+             document.getElementById('upload-logo-btn').style.display = 'block';
+             document.getElementById('logo-image').src = '';
+             document.getElementById('company-logo').value = '';
+             localStorage.removeItem('invoiceFlowLogo');
+             renderPreview();
+             showNotification('Logo removed');
+         });
         
         container.addEventListener('input', (e) => {
             const target = e.target;
@@ -1109,19 +1374,36 @@
             }
         });
 
-        savedItemsList.addEventListener('click', (e) => {
-            if (e.target.closest('.delete-btn')) {
-                const itemDescription = e.target.closest('.delete-btn').dataset.item;
-                deleteItem(itemDescription);
-            }
-        });
+                 savedItemsList.addEventListener('click', (e) => {
+             if (e.target.closest('.delete-btn')) {
+                 const itemDescription = e.target.closest('.delete-btn').dataset.item;
+                 deleteItem(itemDescription);
+             }
+         });
 
-        [companyNameInput, clientNameInput, invoiceDateInput, dueDateInput, invoiceNumberInput, currencySelect, taxRateInput, discountInput].forEach(input => {
-            input.addEventListener('input', () => {
-                renderPreview();
-                triggerAutoSave();
-            });
-        });
+         savedInvoicesList.addEventListener('click', (e) => {
+             if (e.target.closest('.load-invoice-btn')) {
+                 const invoiceId = e.target.closest('.load-invoice-btn').dataset.id;
+                 loadInvoice(invoiceId);
+             } else if (e.target.closest('.delete-invoice-btn')) {
+                 const invoiceId = e.target.closest('.delete-invoice-btn').dataset.id;
+                 deleteInvoice(invoiceId);
+             }
+         });
+
+         // Invoice filter and search
+         document.getElementById('invoice-status-filter')?.addEventListener('change', renderInvoicesList);
+         document.getElementById('invoice-search')?.addEventListener('input', renderInvoicesList);
+
+                 [companyNameInput, clientNameInput, invoiceDateInput, dueDateInput, invoiceNumberInput, currencySelect, taxRateInput, discountInput, 
+          document.getElementById('company-address'), document.getElementById('company-phone'), document.getElementById('logo-position')].forEach(input => {
+             if (input) {
+                 input.addEventListener('input', () => {
+                     renderPreview();
+                     triggerAutoSave();
+                 });
+             }
+         });
 
         // PDF Export function
         document.getElementById('download-pdf').addEventListener('click', () => {
@@ -1164,10 +1446,12 @@
             showNotification('Email feature coming soon!', 'warning');
         });
 
-        // Initial load and render
-        loadData();
-        renderClientsList();
-        renderLineItems();
+                 // Initial load and render
+         loadData();
+         renderClientsList();
+         renderItemsList();
+         renderInvoicesList();
+         renderLineItems();
     </script>
 </body>
 </html>
