@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InvoiceFlow</title>
+    <title>InvoiceFlow Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -15,6 +16,9 @@
             --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
             --border-color: #e2e8f0;
             --focus-color: #9f7aea;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
         }
         [data-theme="dark"] {
             --bg-color: #1a202c;
@@ -34,9 +38,9 @@
             transition: background-color 0.3s ease;
         }
         .container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 2rem;
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 1rem;
             background: var(--card-bg);
             box-shadow: var(--card-shadow);
             border-radius: 20px;
@@ -51,12 +55,20 @@
             grid-column: 1 / -1;
             padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         h1 {
             font-size: 2.5rem;
             margin: 0;
             font-weight: 700;
             color: var(--primary);
+        }
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
         }
         button {
             background: var(--primary);
@@ -67,21 +79,22 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         button.transparent-btn {
             background: transparent;
             color: var(--primary);
             border: 1px solid var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
         button.transparent-btn:hover {
             background: rgba(90, 103, 216, 0.1);
         }
         button:hover {
             background: #434190;
+            transform: translateY(-1px);
         }
         button:active {
             transform: scale(0.98);
@@ -102,12 +115,17 @@
             margin-bottom: 1rem;
             position: relative;
         }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
         label {
             display: block;
             font-weight: 500;
             margin-bottom: 0.5rem;
         }
-        input[type="text"], input[type="number"], input[type="date"] {
+        input[type="text"], input[type="number"], input[type="date"], select {
             width: 100%;
             padding: 0.75rem 1rem;
             border: 1px solid var(--border-color);
@@ -116,8 +134,9 @@
             background: var(--card-bg);
             color: var(--text-color);
             transition: border-color 0.2s;
+            box-sizing: border-box;
         }
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--focus-color);
             box-shadow: 0 0 0 2px rgba(90, 103, 216, 0.2);
@@ -126,16 +145,17 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 1.5rem;
+            font-size: 0.9rem;
         }
         .line-items-table th, .line-items-table td {
-            padding: 0.75rem 0;
+            padding: 0.75rem 0.5rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
         }
         .line-items-table th {
             font-weight: 600;
             color: #6b7280;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
         }
         .line-items-table input {
@@ -144,6 +164,7 @@
             border: 1px solid var(--border-color);
             background: var(--card-bg);
             border-radius: 6px;
+            font-size: 0.9rem;
         }
         .line-items-table button {
             background: none;
@@ -157,7 +178,7 @@
             transition: color 0.2s ease;
         }
         .line-items-table button:hover {
-            color: #ef4444;
+            color: var(--error-color);
         }
         .line-items-table .amount {
             font-weight: 500;
@@ -176,15 +197,27 @@
         #add-line-item:hover {
             background: rgba(90, 103, 216, 0.1);
         }
-        .total-amount {
-            font-size: 1.8rem;
-            font-weight: 700;
-            text-align: right;
+        .totals-section {
             margin-top: 2rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .total-row.final {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 1rem;
             padding-top: 1rem;
             border-top: 2px solid var(--border-color);
         }
-        .total-amount span {
+        .total-row.final span {
             color: var(--primary);
         }
         .preview-invoice {
@@ -206,6 +239,8 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         .preview-invoice table {
             width: 100%;
@@ -220,14 +255,6 @@
         .preview-invoice th {
             font-weight: 600;
             color: #6b7280;
-        }
-        .preview-invoice .total-preview {
-            text-align: right;
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 2px solid #e2e8f0;
         }
         .saved-data-section {
             padding-top: 1rem;
@@ -262,7 +289,7 @@
         .saved-data-list .delete-btn {
             background: none;
             border: none;
-            color: #ef4444;
+            color: var(--error-color);
             padding: 0;
             font-size: 1rem;
             cursor: pointer;
@@ -274,15 +301,77 @@
             gap: 1rem;
             margin-top: 1rem;
             justify-content: flex-end;
+            flex-wrap: wrap;
         }
         .button-group button {
             width: auto;
+        }
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status-draft {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+        .status-sent {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        .status-paid {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+        .auto-save-indicator {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--success-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        .auto-save-indicator.show {
+            opacity: 1;
+        }
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification.success {
+            background: var(--success-color);
+        }
+        .notification.error {
+            background: var(--error-color);
+        }
+        .notification.warning {
+            background: var(--warning-color);
         }
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
                 padding: 1rem;
-                margin: 1rem;
+                margin: 0.5rem;
             }
             header {
                 flex-direction: column;
@@ -292,55 +381,126 @@
             header h1 {
                 font-size: 2rem;
             }
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .line-items-table {
+                font-size: 0.8rem;
+            }
+            .line-items-table th, .line-items-table td {
+                padding: 0.5rem 0.25rem;
+            }
+            .preview-invoice {
+                padding: 1rem;
+            }
+            .preview-invoice .preview-header {
+                flex-direction: column;
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            .form-section, .preview-section {
+                padding: 1rem;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            .button-group button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="auto-save-indicator" id="auto-save-indicator">
+        <i class="fas fa-save"></i> Auto-saved
+    </div>
+    
     <div class="container">
         <header>
-            <h1>InvoiceFlow</h1>
-            <button id="dark-mode-toggle">🌙 Dark Mode</button>
+            <h1><i class="fas fa-file-invoice"></i> InvoiceFlow Pro</h1>
+            <div class="header-controls">
+                <button id="dark-mode-toggle">
+                    <i class="fas fa-moon"></i> Dark Mode
+                </button>
+                <button id="export-data" class="transparent-btn">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+                <button id="import-data" class="transparent-btn">
+                    <i class="fas fa-upload"></i> Import Data
+                </button>
+            </div>
         </header>
 
         <section class="form-section">
-            <h2>Create New Invoice</h2>
+            <h2><i class="fas fa-edit"></i> Create New Invoice</h2>
             
-            <div class="form-group">
-                <label for="company-name">Your Company Name</label>
-                <input type="text" id="company-name" placeholder="InvoiceFlow Inc.">
-            </div>
-
-            <div class="form-group">
-                <label for="client-name">Client Name</label>
-                <input type="text" id="client-name" list="clients-list" placeholder="John Doe">
-                <datalist id="clients-list"></datalist>
-                <div class="button-group">
-                    <button id="save-client-btn" class="transparent-btn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                        Save Client
-                    </button>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="company-name">Your Company Name</label>
+                    <input type="text" id="company-name" placeholder="InvoiceFlow Inc.">
+                </div>
+                <div class="form-group">
+                    <label for="client-name">Client Name</label>
+                    <input type="text" id="client-name" list="clients-list" placeholder="John Doe">
+                    <datalist id="clients-list"></datalist>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="invoice-date">Invoice Date</label>
-                <input type="date" id="invoice-date">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="invoice-date">Invoice Date</label>
+                    <input type="date" id="invoice-date">
+                </div>
+                <div class="form-group">
+                    <label for="due-date">Due Date</label>
+                    <input type="date" id="due-date">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="invoice-number">Invoice Number</label>
-                <input type="text" id="invoice-number" placeholder="INV-001">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="invoice-number">Invoice Number</label>
+                    <input type="text" id="invoice-number" placeholder="INV-001">
+                </div>
+                <div class="form-group">
+                    <label for="currency">Currency</label>
+                    <select id="currency">
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="CAD">CAD (C$)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tax-rate">Tax Rate (%)</label>
+                    <input type="number" id="tax-rate" min="0" max="100" step="0.01" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="discount">Discount (%)</label>
+                    <input type="number" id="discount" min="0" max="100" step="0.01" value="0">
+                </div>
             </div>
             
-            <h3>Invoice Items</h3>
+            <h3><i class="fas fa-list"></i> Invoice Items</h3>
             <table class="line-items-table">
                 <thead>
                     <tr>
-                        <th style="width: 45%;">Description</th>
-                        <th style="width: 15%;">Qty</th>
+                        <th style="width: 40%;">Description</th>
+                        <th style="width: 12%;">Qty</th>
                         <th style="width: 15%;">Rate</th>
                         <th style="width: 15%;">Amount</th>
-                        <th style="width: 10%;"></th>
+                        <th style="width: 8%;"></th>
                     </tr>
                 </thead>
                 <tbody id="items-container">
@@ -348,36 +508,53 @@
                 </tbody>
             </table>
             <button id="add-line-item" type="button">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add Item
+                <i class="fas fa-plus"></i> Add Item
             </button>
+            
+            <div class="totals-section">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal-display">$0.00</span>
+                </div>
+                <div class="total-row">
+                    <span>Discount:</span>
+                    <span id="discount-display">$0.00</span>
+                </div>
+                <div class="total-row">
+                    <span>Tax:</span>
+                    <span id="tax-display">$0.00</span>
+                </div>
+                <div class="total-row final">
+                    <span>Total:</span>
+                    <span id="total-amount-display">$0.00</span>
+                </div>
+            </div>
+
             <div class="button-group">
-                <button id="save-item-btn" class="transparent-btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                    Save Item
+                <button id="save-invoice" class="transparent-btn">
+                    <i class="fas fa-save"></i> Save Invoice
+                </button>
+                <button id="download-pdf">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+                <button id="send-email" class="transparent-btn">
+                    <i class="fas fa-envelope"></i> Send Email
                 </button>
             </div>
-            <div class="total-amount">
-                Total: <span id="total-amount-display">$0.00</span>
-            </div>
-            <button id="download-pdf" style="margin-top: 2rem; width: 100%;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                Download Invoice
-            </button>
 
             <div class="saved-data-section">
-                <h3>Manage Saved Clients</h3>
+                <h3><i class="fas fa-users"></i> Manage Saved Clients</h3>
                 <ul id="saved-clients-list" class="saved-data-list"></ul>
             </div>
             
             <div class="saved-data-section">
-                <h3>Manage Saved Items</h3>
+                <h3><i class="fas fa-box"></i> Manage Saved Items</h3>
                 <ul id="saved-items-list" class="saved-data-list"></ul>
             </div>
         </section>
 
         <section class="preview-section">
-            <h2>Live Preview</h2>
+            <h2><i class="fas fa-eye"></i> Live Preview</h2>
             <div id="invoice-preview" class="preview-invoice">
                 <!-- Live preview will be rendered here -->
             </div>
@@ -387,57 +564,99 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        // Set today's date on page load
+        // Set today's date and due date (30 days from today) on page load
         const today = new Date().toISOString().split('T')[0];
+        const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         document.getElementById('invoice-date').value = today;
+        document.getElementById('due-date').value = dueDate;
 
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
         darkModeToggle.addEventListener('click', () => {
             body.dataset.theme = body.dataset.theme === 'dark' ? '' : 'dark';
-            darkModeToggle.textContent = body.dataset.theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+            darkModeToggle.innerHTML = body.dataset.theme === 'dark' ? 
+                '<i class="fas fa-sun"></i> Light Mode' : 
+                '<i class="fas fa-moon"></i> Dark Mode';
         });
 
-        // Store all data in a single object
+        // Enhanced data structure
         const invoiceData = {
             clients: [],
-            items: []
+            items: [],
+            invoices: [],
+            settings: {
+                defaultCurrency: 'USD',
+                defaultTaxRate: 0,
+                autoSave: true
+            }
         };
         let lineItems = [{ description: '', quantity: 1, rate: 0 }];
+        let currentInvoiceId = null;
 
         const container = document.getElementById('items-container');
         const preview = document.getElementById('invoice-preview');
         const companyNameInput = document.getElementById('company-name');
         const clientNameInput = document.getElementById('client-name');
         const invoiceDateInput = document.getElementById('invoice-date');
+        const dueDateInput = document.getElementById('due-date');
         const invoiceNumberInput = document.getElementById('invoice-number');
+        const currencySelect = document.getElementById('currency');
+        const taxRateInput = document.getElementById('tax-rate');
+        const discountInput = document.getElementById('discount');
+        const subtotalDisplay = document.getElementById('subtotal-display');
+        const discountDisplay = document.getElementById('discount-display');
+        const taxDisplay = document.getElementById('tax-display');
         const totalAmountDisplay = document.getElementById('total-amount-display');
         const clientsDatalist = document.getElementById('clients-list');
         const savedClientsList = document.getElementById('saved-clients-list');
         const savedItemsList = document.getElementById('saved-items-list');
+        const autoSaveIndicator = document.getElementById('auto-save-indicator');
 
-        /**
-         * Loads data from localStorage into the invoiceData object.
-         */
+        // Auto-save functionality
+        let autoSaveTimeout;
+        function triggerAutoSave() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                saveData();
+                showAutoSaveIndicator();
+            }, 2000);
+        }
+
+        function showAutoSaveIndicator() {
+            autoSaveIndicator.classList.add('show');
+            setTimeout(() => {
+                autoSaveIndicator.classList.remove('show');
+            }, 2000);
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
         function loadData() {
             const savedData = localStorage.getItem('invoiceFlowData');
             if (savedData) {
                 const parsedData = JSON.parse(savedData);
                 invoiceData.clients = parsedData.clients || [];
                 invoiceData.items = parsedData.items || [];
+                invoiceData.invoices = parsedData.invoices || [];
+                invoiceData.settings = parsedData.settings || invoiceData.settings;
             }
         }
 
-        /**
-         * Saves the current invoiceData object to localStorage.
-         */
         function saveData() {
             localStorage.setItem('invoiceFlowData', JSON.stringify(invoiceData));
         }
         
-        /**
-         * Renders the saved clients as options in the datalist and the management list.
-         */
         function renderClientsList() {
             clientsDatalist.innerHTML = invoiceData.clients.map(client => 
                 `<option value="${client}"></option>`
@@ -447,15 +666,12 @@
                 <li>
                     <span>${client}</span>
                     <button class="delete-btn" data-client="${client}">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        <i class="fas fa-trash"></i>
                     </button>
                 </li>
             `).join('');
         }
         
-        /**
-         * Renders the saved items as options for the item datalists and the management list.
-         */
         function renderItemsList() {
             const itemDatalists = document.querySelectorAll('.items-list');
             itemDatalists.forEach(list => {
@@ -466,17 +682,20 @@
 
             savedItemsList.innerHTML = invoiceData.items.map(item => `
                 <li>
-                    <span>${item.description} ($${item.rate.toFixed(2)})</span>
+                    <span>${item.description} (${getCurrencySymbol()}${item.rate.toFixed(2)})</span>
                     <button class="delete-btn" data-item="${item.description}">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        <i class="fas fa-trash"></i>
                     </button>
                 </li>
             `).join('');
         }
 
-        /**
-         * Renders the invoice line items table.
-         */
+        function getCurrencySymbol() {
+            const currency = currencySelect.value;
+            const symbols = { USD: '$', EUR: '€', GBP: '£', CAD: 'C$' };
+            return symbols[currency] || '$';
+        }
+
         function renderLineItems() {
             container.innerHTML = '';
             lineItems.forEach((item, index) => {
@@ -488,30 +707,23 @@
                     </td>
                     <td><input type="number" min="1" value="${item.quantity}" data-idx="${index}" class="quantity-input"></td>
                     <td><input type="number" min="0" step="0.01" value="${item.rate}" data-idx="${index}" class="rate-input"></td>
-                    <td class="amount">$${amount.toFixed(2)}</td>
+                    <td class="amount">${getCurrencySymbol()}${amount.toFixed(2)}</td>
                     <td><button type="button" class="remove-item" data-idx="${index}">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        <i class="fas fa-trash"></i>
                     </button></td>
                 `;
                 container.appendChild(row);
             });
-            updateTotal();
+            updateTotals();
             renderPreview();
-            renderItemsList(); // Ensure the datalists are populated
+            renderItemsList();
         }
 
-        /**
-         * Adds a new line item row to the invoice.
-         */
         function addItem() {
             lineItems.push({ description: '', quantity: 1, rate: 0 });
             renderLineItems();
         }
 
-        /**
-         * Removes a line item from the invoice.
-         * @param {number} index - The index of the item to remove.
-         */
         function removeItem(index) {
             if (lineItems.length > 1) {
                 lineItems.splice(index, 1);
@@ -519,32 +731,41 @@
             }
         }
 
-        /**
-         * Calculates and updates the total amount.
-         */
-        function updateTotal() {
-            const total = lineItems.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
-            totalAmountDisplay.textContent = `$${total.toFixed(2)}`;
+        function updateTotals() {
+            const subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
+            const discountRate = parseFloat(discountInput.value) || 0;
+            const discountAmount = subtotal * (discountRate / 100);
+            const taxRate = parseFloat(taxRateInput.value) || 0;
+            const taxAmount = (subtotal - discountAmount) * (taxRate / 100);
+            const total = subtotal - discountAmount + taxAmount;
+
+            subtotalDisplay.textContent = `${getCurrencySymbol()}${subtotal.toFixed(2)}`;
+            discountDisplay.textContent = `${getCurrencySymbol()}${discountAmount.toFixed(2)}`;
+            taxDisplay.textContent = `${getCurrencySymbol()}${taxAmount.toFixed(2)}`;
+            totalAmountDisplay.textContent = `${getCurrencySymbol()}${total.toFixed(2)}`;
         }
 
-        /**
-         * Renders the live invoice preview.
-         */
         function renderPreview() {
             const companyName = companyNameInput.value || 'Your Company';
             const clientName = clientNameInput.value || 'Client Name';
             const invoiceDate = invoiceDateInput.value || today;
+            const dueDate = dueDateInput.value || dueDate;
             const invoiceNumber = invoiceNumberInput.value || 'INV-001';
+            const currency = getCurrencySymbol();
 
             let previewHTML = `
                 <div class="preview-header">
                     <div>
                         <h3>${companyName}</h3>
                         <p>Invoice for: <strong>${clientName}</strong></p>
+                        <p>Due Date: <strong>${dueDate}</strong></p>
                     </div>
                     <div>
                         <p>Invoice #: <strong>${invoiceNumber}</strong></p>
                         <p>Date: ${invoiceDate}</p>
+                        <div class="status-indicator status-draft">
+                            <i class="fas fa-edit"></i> Draft
+                        </div>
                     </div>
                 </div>
                 <table>
@@ -558,77 +779,160 @@
                     </thead>
                     <tbody>
             `;
-            let total = 0;
+            let subtotal = 0;
             lineItems.forEach(item => {
                 const amount = item.quantity * item.rate;
                 previewHTML += `
                     <tr>
                         <td>${item.description}</td>
                         <td>${item.quantity}</td>
-                        <td>$${item.rate.toFixed(2)}</td>
-                        <td>$${amount.toFixed(2)}</td>
+                        <td>${currency}${item.rate.toFixed(2)}</td>
+                        <td>${currency}${amount.toFixed(2)}</td>
                     </tr>
                 `;
-                total += amount;
+                subtotal += amount;
             });
+            
+            const discountRate = parseFloat(discountInput.value) || 0;
+            const discountAmount = subtotal * (discountRate / 100);
+            const taxRate = parseFloat(taxRateInput.value) || 0;
+            const taxAmount = (subtotal - discountAmount) * (taxRate / 100);
+            const total = subtotal - discountAmount + taxAmount;
+
             previewHTML += `
                     </tbody>
                 </table>
-                <div class="total-preview">
-                    Total: $${total.toFixed(2)}
+                <div class="totals-section">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span>${currency}${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Discount (${discountRate}%):</span>
+                        <span>${currency}${discountAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Tax (${taxRate}%):</span>
+                        <span>${currency}${taxAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="total-row final">
+                        <span>Total:</span>
+                        <span>${currency}${total.toFixed(2)}</span>
+                    </div>
                 </div>
             `;
             preview.innerHTML = previewHTML;
         }
         
-        /**
-         * Finds a saved item from the library by its description.
-         * @param {string} description - The description to search for.
-         * @returns {object|undefined} The saved item object or undefined.
-         */
         function getSavedItem(description) {
             return invoiceData.items.find(item => item.description === description);
         }
 
-        /**
-         * Deletes a client from the saved list.
-         * @param {string} clientName - The name of the client to delete.
-         */
         function deleteClient(clientName) {
             invoiceData.clients = invoiceData.clients.filter(c => c !== clientName);
             saveData();
             renderClientsList();
+            showNotification('Client deleted successfully');
         }
 
-        /**
-         * Deletes an item from the saved list.
-         * @param {string} itemDescription - The description of the item to delete.
-         */
         function deleteItem(itemDescription) {
             invoiceData.items = invoiceData.items.filter(i => i.description !== itemDescription);
             saveData();
             renderItemsList();
+            showNotification('Item deleted successfully');
         }
 
-        // --- Event Listeners ---
-        document.getElementById('add-line-item').addEventListener('click', addItem);
+        function saveInvoice() {
+            const invoice = {
+                id: currentInvoiceId || Date.now().toString(),
+                companyName: companyNameInput.value,
+                clientName: clientNameInput.value,
+                invoiceDate: invoiceDateInput.value,
+                dueDate: dueDateInput.value,
+                invoiceNumber: invoiceNumberInput.value,
+                currency: currencySelect.value,
+                taxRate: parseFloat(taxRateInput.value) || 0,
+                discount: parseFloat(discountInput.value) || 0,
+                items: [...lineItems],
+                status: 'draft',
+                createdAt: new Date().toISOString()
+            };
 
-        document.getElementById('save-client-btn').addEventListener('click', () => {
+            const existingIndex = invoiceData.invoices.findIndex(inv => inv.id === invoice.id);
+            if (existingIndex >= 0) {
+                invoiceData.invoices[existingIndex] = invoice;
+            } else {
+                invoiceData.invoices.push(invoice);
+            }
+
+            saveData();
+            currentInvoiceId = invoice.id;
+            showNotification('Invoice saved successfully');
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(invoiceData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'invoiceflow-data.json';
+            link.click();
+            URL.revokeObjectURL(url);
+            showNotification('Data exported successfully');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+                            Object.assign(invoiceData, importedData);
+                            saveData();
+                            loadData();
+                            renderClientsList();
+                            renderItemsList();
+                            showNotification('Data imported successfully');
+                        } catch (error) {
+                            showNotification('Error importing data', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // Event Listeners
+        document.getElementById('add-line-item').addEventListener('click', addItem);
+        document.getElementById('save-invoice').addEventListener('click', saveInvoice);
+        document.getElementById('export-data').addEventListener('click', exportData);
+        document.getElementById('import-data').addEventListener('click', importData);
+
+        document.getElementById('save-client-btn')?.addEventListener('click', () => {
             const clientName = clientNameInput.value.trim();
             if (clientName && !invoiceData.clients.includes(clientName)) {
                 invoiceData.clients.push(clientName);
                 saveData();
                 renderClientsList();
+                showNotification('Client saved successfully');
             }
         });
 
-        document.getElementById('save-item-btn').addEventListener('click', () => {
+        document.getElementById('save-item-btn')?.addEventListener('click', () => {
             const lastItem = lineItems[lineItems.length - 1];
             const description = lastItem.description.trim();
             if (description && !getSavedItem(description)) {
                 invoiceData.items.push(lastItem);
                 saveData();
                 renderItemsList();
+                showNotification('Item saved successfully');
             }
         });
         
@@ -649,11 +953,13 @@
                 lineItems[index].rate = Math.max(0, parseFloat(target.value));
             }
             renderLineItems();
+            triggerAutoSave();
         });
 
         container.addEventListener('click', (e) => {
             if (e.target.closest('.remove-item')) {
                 removeItem(parseInt(e.target.closest('.remove-item').dataset.idx));
+                triggerAutoSave();
             }
         });
 
@@ -671,17 +977,22 @@
             }
         });
 
-        [companyNameInput, clientNameInput, invoiceDateInput, invoiceNumberInput].forEach(input => {
-            input.addEventListener('input', renderPreview);
+        [companyNameInput, clientNameInput, invoiceDateInput, dueDateInput, invoiceNumberInput, currencySelect, taxRateInput, discountInput].forEach(input => {
+            input.addEventListener('input', () => {
+                renderPreview();
+                triggerAutoSave();
+            });
         });
 
-        // PDF Export function using html2canvas and jsPDF
+        // PDF Export function
         document.getElementById('download-pdf').addEventListener('click', () => {
             const { jsPDF } = window.jspdf;
             const previewElement = document.getElementById('invoice-preview');
 
             html2canvas(previewElement, { 
-                scale: 2
+                scale: 2,
+                useCORS: true,
+                allowTaint: true
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
@@ -701,8 +1012,17 @@
                     heightLeft -= pageHeight;
                 }
                 
-                pdf.save('invoice.pdf');
+                const fileName = `invoice-${invoiceNumberInput.value || 'draft'}.pdf`;
+                pdf.save(fileName);
+                showNotification('PDF downloaded successfully');
+            }).catch(error => {
+                showNotification('Error generating PDF', 'error');
             });
+        });
+
+        // Email functionality (placeholder)
+        document.getElementById('send-email').addEventListener('click', () => {
+            showNotification('Email feature coming soon!', 'warning');
         });
 
         // Initial load and render
