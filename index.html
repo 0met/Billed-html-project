@@ -1061,6 +1061,20 @@
             return symbols[currency] || '$';
         }
 
+        function formatPhoneNumber(value) {
+            // Remove all non-digit characters
+            const cleaned = value.replace(/\D/g, '');
+            
+            // Limit to 10 digits
+            const trimmed = cleaned.slice(0, 10);
+            
+            // Format as (000) 123-4567
+            if (trimmed.length === 0) return '';
+            if (trimmed.length <= 3) return `(${trimmed}`;
+            if (trimmed.length <= 6) return `(${trimmed.slice(0, 3)}) ${trimmed.slice(3)}`;
+            return `(${trimmed.slice(0, 3)}) ${trimmed.slice(3, 6)}-${trimmed.slice(6)}`;
+        }
+
         function renderLineItems() {
             container.innerHTML = '';
             lineItems.forEach((item, index) => {
@@ -1757,6 +1771,20 @@
                     triggerAutoSave();
                 });
             }
+        });
+
+        // Phone number formatting
+        const companyPhoneInput = document.getElementById('company-phone');
+        const customerPhoneInput = document.getElementById('customer-phone');
+
+        companyPhoneInput?.addEventListener('input', (e) => {
+            const formatted = formatPhoneNumber(e.target.value);
+            e.target.value = formatted;
+        });
+
+        customerPhoneInput?.addEventListener('input', (e) => {
+            const formatted = formatPhoneNumber(e.target.value);
+            e.target.value = formatted;
         });
 
         // PDF Export function
