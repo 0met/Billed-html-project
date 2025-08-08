@@ -577,59 +577,73 @@
         <section class="form-section">
             <h2><i class="fas fa-edit"></i> Create New Invoice</h2>
             
-                         <div class="form-row">
-                 <div class="form-group">
-                     <label for="company-name">Your Company Name</label>
-                     <input type="text" id="company-name" placeholder="InvoiceFlow Inc.">
-                 </div>
-                 <div class="form-group">
-                     <label for="client-name">Client Name</label>
-                     <input type="text" id="client-name" list="clients-list" placeholder="John Doe">
-                     <datalist id="clients-list"></datalist>
-                     <div class="button-group" style="margin-top: 0.5rem;">
-                         <button id="save-client-btn" class="transparent-btn">
-                             <i class="fas fa-save"></i> Save Client
-                         </button>
-                     </div>
-                 </div>
-             </div>
+                                     <div class="form-row">
+                <div class="form-group">
+                    <label for="company-name">Your Company Name</label>
+                    <input type="text" id="company-name" placeholder="InvoiceFlow Inc.">
+                </div>
+            </div>
 
-             <div class="form-row">
-                 <div class="form-group">
-                     <label for="company-address">Company Address</label>
-                     <textarea id="company-address" placeholder="123 Business St, City, State 12345" rows="3"></textarea>
-                 </div>
-                 <div class="form-group">
-                     <label for="company-phone">Company Phone</label>
-                     <input type="tel" id="company-phone" placeholder="+1 (555) 123-4567">
-                 </div>
-             </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="company-address">Company Address</label>
+                    <textarea id="company-address" placeholder="123 Business St, City, State 12345" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="company-phone">Company Phone</label>
+                    <input type="tel" id="company-phone" placeholder="+1 (555) 123-4567">
+                </div>
+            </div>
 
-             <div class="form-row">
-                 <div class="form-group">
-                     <label for="company-logo">Company Logo</label>
-                     <div class="logo-upload-container">
-                         <input type="file" id="company-logo" accept="image/*" style="display: none;">
-                         <button type="button" id="upload-logo-btn" class="transparent-btn">
-                             <i class="fas fa-upload"></i> Upload Logo
-                         </button>
-                         <div id="logo-preview" class="logo-preview" style="display: none;">
-                             <img id="logo-image" alt="Company Logo">
-                             <button type="button" id="remove-logo-btn" class="remove-logo-btn">
-                                 <i class="fas fa-times"></i>
-                             </button>
-                         </div>
-                     </div>
-                 </div>
-                 <div class="form-group">
-                     <label for="logo-position">Logo Position</label>
-                     <select id="logo-position">
-                         <option value="left">Left</option>
-                         <option value="center">Center</option>
-                         <option value="right">Right</option>
-                     </select>
-                 </div>
-             </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="company-logo">Company Logo</label>
+                    <div class="logo-upload-container">
+                        <input type="file" id="company-logo" accept="image/*" style="display: none;">
+                        <button type="button" id="upload-logo-btn" class="transparent-btn">
+                            <i class="fas fa-upload"></i> Upload Logo
+                        </button>
+                        <div id="logo-preview" class="logo-preview" style="display: none;">
+                            <img id="logo-image" alt="Company Logo">
+                            <button type="button" id="remove-logo-btn" class="remove-logo-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="logo-position">Logo Position</label>
+                    <select id="logo-position">
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="client-name">Customer Name</label>
+                    <input type="text" id="client-name" list="clients-list" placeholder="John Doe">
+                    <datalist id="clients-list"></datalist>
+                    <div class="button-group" style="margin-top: 0.5rem;">
+                        <button id="save-client-btn" class="transparent-btn">
+                            <i class="fas fa-save"></i> Save Client
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="customer-address">Customer Address</label>
+                    <textarea id="customer-address" placeholder="456 Customer Ave, City, State 67890" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="customer-phone">Customer Phone</label>
+                    <input type="tel" id="customer-phone" placeholder="+1 (555) 987-6543">
+                </div>
+            </div>
 
             <div class="form-row">
                 <div class="form-group">
@@ -990,37 +1004,41 @@
             totalAmountDisplay.textContent = `${getCurrencySymbol()}${total.toFixed(2)}`;
         }
 
-                 function renderPreview() {
-             const companyName = companyNameInput.value || 'Your Company';
-             const companyAddress = document.getElementById('company-address').value || '';
-             const companyPhone = document.getElementById('company-phone').value || '';
-             const clientName = clientNameInput.value || 'Client Name';
-             const invoiceDate = invoiceDateInput.value || today;
-             const dueDate = dueDateInput.value || dueDate;
-             const invoiceNumber = invoiceNumberInput.value || 'INV-001';
-             const currency = getCurrencySymbol();
-             const logoPosition = document.getElementById('logo-position').value || 'left';
-             const logoImage = document.getElementById('logo-image');
-             const hasLogo = logoImage && logoImage.src && !logoImage.src.endsWith('data:image/svg+xml');
+                         function renderPreview() {
+            const companyName = companyNameInput.value || 'Your Company';
+            const companyAddress = document.getElementById('company-address').value || '';
+            const companyPhone = document.getElementById('company-phone').value || '';
+            const clientName = clientNameInput.value || 'Client Name';
+            const customerAddress = document.getElementById('customer-address').value || '';
+            const customerPhone = document.getElementById('customer-phone').value || '';
+            const invoiceDate = invoiceDateInput.value || today;
+            const dueDate = dueDateInput.value || dueDate;
+            const invoiceNumber = invoiceNumberInput.value || 'INV-001';
+            const currency = getCurrencySymbol();
+            const logoPosition = document.getElementById('logo-position').value || 'left';
+            const logoImage = document.getElementById('logo-image');
+            const hasLogo = logoImage && logoImage.src && !logoImage.src.endsWith('data:image/svg+xml');
 
-                         let previewHTML = `
-                 <div class="preview-header">
-                     <div class="company-info" style="text-align: ${logoPosition === 'center' ? 'center' : logoPosition};">
-                         ${hasLogo ? `<img src="${logoImage.src}" alt="${companyName}" style="max-height: 60px; margin-bottom: 1rem;">` : ''}
-                         <h3>${companyName}</h3>
-                         ${companyAddress ? `<p style="margin: 0.5rem 0;">${companyAddress}</p>` : ''}
-                         ${companyPhone ? `<p style="margin: 0.5rem 0;">📞 ${companyPhone}</p>` : ''}
-                     </div>
-                     <div class="invoice-info">
-                         <p><strong>Invoice for:</strong> ${clientName}</p>
-                         <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
-                         <p><strong>Date:</strong> ${invoiceDate}</p>
-                         <p><strong>Due Date:</strong> ${dueDate}</p>
-                         <div class="status-indicator status-draft">
-                             <i class="fas fa-edit"></i> Draft
-                         </div>
-                     </div>
-                 </div>
+            let previewHTML = `
+                <div class="preview-header">
+                    <div class="company-info" style="text-align: ${logoPosition === 'center' ? 'center' : logoPosition};">
+                        ${hasLogo ? `<img src="${logoImage.src}" alt="${companyName}" style="max-height: 60px; margin-bottom: 1rem;">` : ''}
+                        <h3>${companyName}</h3>
+                        ${companyAddress ? `<p style="margin: 0.5rem 0;">${companyAddress}</p>` : ''}
+                        ${companyPhone ? `<p style="margin: 0.5rem 0;">📞 ${companyPhone}</p>` : ''}
+                    </div>
+                    <div class="invoice-info">
+                        <p><strong>Invoice for:</strong> ${clientName}</p>
+                        ${customerAddress ? `<p style="margin: 0.5rem 0;">${customerAddress}</p>` : ''}
+                        ${customerPhone ? `<p style="margin: 0.5rem 0;">📞 ${customerPhone}</p>` : ''}
+                        <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
+                        <p><strong>Date:</strong> ${invoiceDate}</p>
+                        <p><strong>Due Date:</strong> ${dueDate}</p>
+                        <div class="status-indicator status-draft">
+                            <i class="fas fa-edit"></i> Draft
+                        </div>
+                    </div>
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -1139,28 +1157,30 @@
              `).join('');
          }
 
-         function loadInvoice(invoiceId) {
-             const invoice = invoiceData.invoices.find(inv => inv.id === invoiceId);
-             if (invoice) {
-                 companyNameInput.value = invoice.companyName || '';
-                 clientNameInput.value = invoice.clientName || '';
-                 document.getElementById('company-address').value = invoice.companyAddress || '';
-                 document.getElementById('company-phone').value = invoice.companyPhone || '';
-                 invoiceDateInput.value = invoice.invoiceDate || '';
-                 dueDateInput.value = invoice.dueDate || '';
-                 invoiceNumberInput.value = invoice.invoiceNumber || '';
-                 currencySelect.value = invoice.currency || 'USD';
-                 taxRateInput.value = invoice.taxRate || 0;
-                 discountInput.value = invoice.discount || 0;
-                 
-                 lineItems = [...invoice.items];
-                 currentInvoiceId = invoice.id;
-                 
-                 renderLineItems();
-                 renderPreview();
-                 showNotification('Invoice loaded successfully');
-             }
-         }
+                 function loadInvoice(invoiceId) {
+            const invoice = invoiceData.invoices.find(inv => inv.id === invoiceId);
+            if (invoice) {
+                companyNameInput.value = invoice.companyName || '';
+                clientNameInput.value = invoice.clientName || '';
+                document.getElementById('company-address').value = invoice.companyAddress || '';
+                document.getElementById('company-phone').value = invoice.companyPhone || '';
+                document.getElementById('customer-address').value = invoice.customerAddress || '';
+                document.getElementById('customer-phone').value = invoice.customerPhone || '';
+                invoiceDateInput.value = invoice.invoiceDate || '';
+                dueDateInput.value = invoice.dueDate || '';
+                invoiceNumberInput.value = invoice.invoiceNumber || '';
+                currencySelect.value = invoice.currency || 'USD';
+                taxRateInput.value = invoice.taxRate || 0;
+                discountInput.value = invoice.discount || 0;
+                
+                lineItems = [...invoice.items];
+                currentInvoiceId = invoice.id;
+                
+                renderLineItems();
+                renderPreview();
+                showNotification('Invoice loaded successfully');
+            }
+        }
 
          function deleteInvoice(invoiceId) {
              invoiceData.invoices = invoiceData.invoices.filter(inv => inv.id !== invoiceId);
@@ -1169,23 +1189,25 @@
              showNotification('Invoice deleted successfully');
          }
 
-                 function saveInvoice() {
-             const invoice = {
-                 id: currentInvoiceId || Date.now().toString(),
-                 companyName: companyNameInput.value,
-                 companyAddress: document.getElementById('company-address').value,
-                 companyPhone: document.getElementById('company-phone').value,
-                 clientName: clientNameInput.value,
-                 invoiceDate: invoiceDateInput.value,
-                 dueDate: dueDateInput.value,
-                 invoiceNumber: invoiceNumberInput.value,
-                 currency: currencySelect.value,
-                 taxRate: parseFloat(taxRateInput.value) || 0,
-                 discount: parseFloat(discountInput.value) || 0,
-                 items: [...lineItems],
-                 status: 'draft',
-                 createdAt: new Date().toISOString()
-             };
+                         function saveInvoice() {
+            const invoice = {
+                id: currentInvoiceId || Date.now().toString(),
+                companyName: companyNameInput.value,
+                companyAddress: document.getElementById('company-address').value,
+                companyPhone: document.getElementById('company-phone').value,
+                clientName: clientNameInput.value,
+                customerAddress: document.getElementById('customer-address').value,
+                customerPhone: document.getElementById('customer-phone').value,
+                invoiceDate: invoiceDateInput.value,
+                dueDate: dueDateInput.value,
+                invoiceNumber: invoiceNumberInput.value,
+                currency: currencySelect.value,
+                taxRate: parseFloat(taxRateInput.value) || 0,
+                discount: parseFloat(discountInput.value) || 0,
+                items: [...lineItems],
+                status: 'draft',
+                createdAt: new Date().toISOString()
+            };
 
             const existingIndex = invoiceData.invoices.findIndex(inv => inv.id === invoice.id);
             if (existingIndex >= 0) {
@@ -1395,15 +1417,15 @@
          document.getElementById('invoice-status-filter')?.addEventListener('change', renderInvoicesList);
          document.getElementById('invoice-search')?.addEventListener('input', renderInvoicesList);
 
-                 [companyNameInput, clientNameInput, invoiceDateInput, dueDateInput, invoiceNumberInput, currencySelect, taxRateInput, discountInput, 
-          document.getElementById('company-address'), document.getElementById('company-phone'), document.getElementById('logo-position')].forEach(input => {
-             if (input) {
-                 input.addEventListener('input', () => {
-                     renderPreview();
-                     triggerAutoSave();
-                 });
-             }
-         });
+                         [companyNameInput, clientNameInput, invoiceDateInput, dueDateInput, invoiceNumberInput, currencySelect, taxRateInput, discountInput, 
+         document.getElementById('company-address'), document.getElementById('company-phone'), document.getElementById('customer-address'), document.getElementById('customer-phone'), document.getElementById('logo-position')].forEach(input => {
+            if (input) {
+                input.addEventListener('input', () => {
+                    renderPreview();
+                    triggerAutoSave();
+                });
+            }
+        });
 
         // PDF Export function
         document.getElementById('download-pdf').addEventListener('click', () => {
