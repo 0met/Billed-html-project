@@ -480,6 +480,11 @@
                     <label for="client-name">Client Name</label>
                     <input type="text" id="client-name" list="clients-list" placeholder="John Doe">
                     <datalist id="clients-list"></datalist>
+                    <div class="button-group" style="margin-top: 0.5rem;">
+                        <button id="save-client-btn" class="transparent-btn">
+                            <i class="fas fa-save"></i> Save Client
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -781,6 +786,17 @@
             renderPreview();
         }
 
+        function updateAmountDisplay(index) {
+            const row = container.children[index];
+            if (row) {
+                const amount = lineItems[index].quantity * lineItems[index].rate;
+                const amountCell = row.querySelector('.amount');
+                if (amountCell) {
+                    amountCell.textContent = `${getCurrencySymbol()}${amount.toFixed(2)}`;
+                }
+            }
+        }
+
         function addItem() {
             lineItems.push({ description: '', quantity: 1, rate: 0 });
             renderLineItems();
@@ -1018,13 +1034,20 @@
             if (target.classList.contains('description-input')) {
                 lineItems[index].description = target.value;
                 showSuggestions(target, index);
+                updateTotals();
+                renderPreview();
+                triggerAutoSave();
             } else if (target.classList.contains('quantity-input')) {
                 lineItems[index].quantity = Math.max(1, parseFloat(target.value));
+                updateTotals();
+                renderPreview();
+                triggerAutoSave();
             } else if (target.classList.contains('rate-input')) {
                 lineItems[index].rate = Math.max(0, parseFloat(target.value));
+                updateTotals();
+                renderPreview();
+                triggerAutoSave();
             }
-            renderLineItems();
-            triggerAutoSave();
         });
 
         container.addEventListener('click', (e) => {
