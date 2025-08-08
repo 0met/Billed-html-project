@@ -1130,9 +1130,6 @@
             const customerFirstName = customerFirstNameInput.value || '';
             const customerLastName = customerLastNameInput.value || '';
             const customerCompany = customerCompanyInput.value || '';
-            const clientName = customerFirstName && customerLastName ? 
-                `${customerFirstName} ${customerLastName}` : 
-                customerCompany || '';
             const customerAddress = document.getElementById('customer-address').value || '';
             const customerPhone = document.getElementById('customer-phone').value || '';
             const invoiceDate = invoiceDateInput.value || today;
@@ -1152,9 +1149,12 @@
                         ${companyPhone ? `<p style="margin: 0.25rem 0;">📞 ${companyPhone}</p>` : ''}
                     </div>
                     <div class="invoice-info">
-                        ${clientName ? `<p><strong>Invoice for:</strong> ${clientName}</p>` : ''}
-                        ${customerAddress ? `<p style="margin: 0.25rem 0;">${customerAddress}</p>` : ''}
-                        ${customerPhone ? `<p style="margin: 0.25rem 0;">📞 ${customerPhone}</p>` : ''}
+                        ${customerFirstName || customerLastName || customerCompany ? '<p><strong>Customer Information:</strong></p>' : ''}
+                        ${customerFirstName ? `<p style="margin: 0.25rem 0;"><strong>First Name:</strong> ${customerFirstName}</p>` : ''}
+                        ${customerLastName ? `<p style="margin: 0.25rem 0;"><strong>Last Name:</strong> ${customerLastName}</p>` : ''}
+                        ${customerCompany ? `<p style="margin: 0.25rem 0;"><strong>Company:</strong> ${customerCompany}</p>` : ''}
+                        ${customerAddress ? `<p style="margin: 0.25rem 0;"><strong>Address:</strong> ${customerAddress}</p>` : ''}
+                        ${customerPhone ? `<p style="margin: 0.25rem 0;"><strong>Phone:</strong> 📞 ${customerPhone}</p>` : ''}
                         <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
                         <p><strong>Date:</strong> ${invoiceDate}</p>
                         <p><strong>Due Date:</strong> ${dueDate}</p>
