@@ -275,7 +275,34 @@
             justify-content: space-between;
             margin-bottom: 2rem;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 2rem;
+        }
+        
+        .preview-invoice .company-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .preview-invoice .company-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
+        
+        .preview-invoice .company-info p {
+            margin: 0.25rem 0;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        
+        .preview-invoice .invoice-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .preview-invoice .invoice-info p {
+            margin: 0.25rem 0;
+            color: var(--text-color);
         }
         .preview-invoice table {
             width: 100%;
@@ -1105,7 +1132,7 @@
             const customerCompany = customerCompanyInput.value || '';
             const clientName = customerFirstName && customerLastName ? 
                 `${customerFirstName} ${customerLastName}` : 
-                customerCompany || 'Client Name';
+                customerCompany || '';
             const customerAddress = document.getElementById('customer-address').value || '';
             const customerPhone = document.getElementById('customer-phone').value || '';
             const invoiceDate = invoiceDateInput.value || today;
@@ -1121,13 +1148,13 @@
                     <div class="company-info" style="text-align: ${logoPosition === 'center' ? 'center' : logoPosition};">
                         ${hasLogo ? `<img src="${logoImage.src}" alt="${companyName}" style="max-height: 60px; margin-bottom: 1rem;">` : ''}
                         <h3>${companyName}</h3>
-                        ${companyAddress ? `<p style="margin: 0.5rem 0;">${companyAddress}</p>` : ''}
-                        ${companyPhone ? `<p style="margin: 0.5rem 0;">📞 ${companyPhone}</p>` : ''}
+                        ${companyAddress ? `<p style="margin: 0.25rem 0;">${companyAddress}</p>` : ''}
+                        ${companyPhone ? `<p style="margin: 0.25rem 0;">📞 ${companyPhone}</p>` : ''}
                     </div>
                     <div class="invoice-info">
-                        <p><strong>Invoice for:</strong> ${clientName}</p>
-                        ${customerAddress ? `<p style="margin: 0.5rem 0;">${customerAddress}</p>` : ''}
-                        ${customerPhone ? `<p style="margin: 0.5rem 0;">📞 ${customerPhone}</p>` : ''}
+                        ${clientName ? `<p><strong>Invoice for:</strong> ${clientName}</p>` : ''}
+                        ${customerAddress ? `<p style="margin: 0.25rem 0;">${customerAddress}</p>` : ''}
+                        ${customerPhone ? `<p style="margin: 0.25rem 0;">📞 ${customerPhone}</p>` : ''}
                         <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
                         <p><strong>Date:</strong> ${invoiceDate}</p>
                         <p><strong>Due Date:</strong> ${dueDate}</p>
